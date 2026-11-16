@@ -24,7 +24,6 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p renderer && tsc -p tsconfig.scripts.json"
   },
   "dependencies": {
-    "@gravity-ui/uikit": "7.47.1",
     "@gravity-ui/uikit-themer": "1.8.0",
     "chroma-js": "3.1.2"
   },
@@ -42,6 +41,7 @@
     "@gravity-ui/navigation": "6.3.1",
     "@gravity-ui/prettier-config": "1.1.1",
     "@gravity-ui/stylelint-config": "5.0.0",
+    "@gravity-ui/uikit": "7.47.1",
     "@playwright/test": "1.57.0",
     "@svgr/webpack": "6.5.1",
     "@types/chroma-js": "2.4.4",
