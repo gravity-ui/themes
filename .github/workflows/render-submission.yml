@@ -31,15 +31,15 @@ jobs:
           ACTUAL: ${{ github.sha }}
           TRUSTED: ${{ vars.TRUSTED_RENDERER_REVISION }}
         run: test "$EXPECTED" = "$ACTUAL" && test "$ACTUAL" = "$TRUSTED"
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '24'
       # The renderer build is keyed by the trusted revision, so a hit is the same build.
       - id: build-cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v4.3.0
         with:
           path: |
             node_modules
@@ -50,7 +50,7 @@ jobs:
         run: npm ci && npm run build && npm run render:build
       # Saved before rendering: a failed submission still warms the next run.
       - if: steps.build-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v4.3.0
         with:
           path: |
             node_modules
@@ -59,14 +59,14 @@ jobs:
           key: renderer-build-${{ runner.os }}-${{ github.sha }}
       # The runner image already has Chromium's system libraries; only the pinned browser is cached.
       - id: browser-cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v4.3.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - if: steps.browser-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
       - if: steps.browser-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v4.3.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -90,7 +90,7 @@ jobs:
         if: failure()
         run: |
           if test -f renderer.log; then tail -n 100 renderer.log; fi
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: theme-job-${{ inputs.job_id }}
           path: output/result.json
