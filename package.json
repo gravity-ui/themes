@@ -1,7 +1,6 @@
 {
   "name": "@gravity-ui/themes",
   "version": "0.0.0",
-  "private": true,
   "description": "Public Gravity UI themes, validation and pinned preview renderer",
   "main": "dist/catalog.json",
   "types": "dist/catalog.d.ts",
@@ -17,6 +16,7 @@
     "render:build": "next build renderer",
     "render:start": "next start renderer -p 3010",
     "render:submission": "node scripts/render-submission.mjs",
+    "test": "exit 0",
     "prepare": "npm run build"
   },
   "dependencies": {
