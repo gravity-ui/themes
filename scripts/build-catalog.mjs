@@ -6,14 +6,22 @@ const {validateThemePayload} = require('../dist/validation.js');
 const themes = [];
 const names = new Set();
 for (const file of (await readdir('themes')).filter((name) => name.endsWith('.meta.json')).sort()) {
-    const metadata = JSON.parse(await readFile(`themes/${file}`, 'utf8'));
-    validateThemeMetadata(metadata);
-    if (names.has(metadata.name.trim().toLowerCase())) throw new Error('Duplicate theme name');
-    names.add(metadata.name.trim().toLowerCase());
-    const payload = validateThemePayload(JSON.parse(await readFile(`themes/${metadata.id}.theme.json`, 'utf8')));
-    const previews = {};
-    for (const mode of ['light', 'dark']) previews[mode] = 'data:image/png;base64,' + (await readFile(`previews/${metadata.id}-${mode}.png`)).toString('base64');
-    themes.push({metadata, payload, previews});
+    try {
+        const metadata = JSON.parse(await readFile(`themes/${file}`, 'utf8'));
+        validateThemeMetadata(metadata);
+        const expectedId = file.slice(0, -'.meta.json'.length);
+        if (metadata.id !== expectedId) {
+            throw new Error(`id "${metadata.id}" must match file name "${expectedId}"`);
+        }
+        if (names.has(metadata.name.trim().toLowerCase())) throw new Error('Duplicate theme name');
+        names.add(metadata.name.trim().toLowerCase());
+        const payload = validateThemePayload(JSON.parse(await readFile(`themes/${metadata.id}.theme.json`, 'utf8')));
+        const previews = {};
+        for (const mode of ['light', 'dark']) previews[mode] = 'data:image/png;base64,' + (await readFile(`previews/${metadata.id}-${mode}.png`)).toString('base64');
+        themes.push({metadata, payload, previews});
+    } catch (error) {
+        throw new Error(`themes/${file}: ${error instanceof Error ? error.message : String(error)}`, {cause: error});
+    }
 }
 await mkdir('dist', {recursive: true});
 await writeFile('dist/catalog.json', JSON.stringify(themes));
