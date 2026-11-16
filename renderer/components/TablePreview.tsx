@@ -21,12 +21,13 @@ import {
 } from '@gravity-ui/uikit';
 import React from 'react';
 import blockFactory from 'bem-cn-lite';
-const block = (name: string) => blockFactory('gravity-ui-landing-' + name);
 
 import avatar1Asset from '../assets/avatar-1.png';
 import {labels, projects, tableData} from './constants';
 
 import './TablePreview.scss';
+
+const block = (name: string) => blockFactory('gravity-ui-landing-' + name);
 
 type TableData = {
     user: string;

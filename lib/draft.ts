@@ -1,7 +1,8 @@
+import {THEME_TAGS, type ThemeTag, toThemeId} from './schema';
+
 const MAX_DESCRIPTION_LENGTH = 200;
 const MAX_TAGS = 3;
 const MAX_THEME_NAME_LENGTH = 40;
-import {THEME_TAGS, type ThemeTag, toThemeId} from './schema';
 
 export interface SubmissionDraft {
     name: string;
