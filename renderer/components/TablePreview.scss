@@ -7,10 +7,6 @@ $block: '.#{$ns}table-preview';
 #{$block} {
     width: 900px;
 
-    &__preview-wrapper {
-        width: 100%;
-    }
-
     &__wrapper {
         overflow-x: hidden;
     }

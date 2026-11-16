@@ -69,48 +69,15 @@ $desktopSampleWidth: 1080px;
         padding: var(--g-spacing-6) calc(var(--g-spacing-1) * 24);
         border-radius: 16px;
 
-        .pc-Grid .container-fluid,
-        .pc-Grid .container {
-            padding: 0 40px;
-        }
-
-        &_full-width {
-            padding-right: 0;
-            padding-left: 0;
-        }
-
-        &_full-height {
-            padding-top: 0;
-            padding-bottom: 0;
-            height: calc(100% - 10px);
-        }
 
         @media (max-width: map-get($gridBreakpoints, 'lg')) {
             padding: var(--g-spacing-6) calc(var(--g-spacing-10));
 
-            &_full-width {
-                padding-right: 0;
-                padding-left: 0;
-            }
-
-            &_full-height {
-                padding-top: 0;
-                padding-bottom: 0;
-            }
         }
 
         @media (max-width: map-get($gridBreakpoints, 'md')) {
             padding: var(--g-spacing-6) calc(var(--g-spacing-6));
 
-            &_full-width {
-                padding-right: 0;
-                padding-left: 0;
-            }
-
-            &_full-height {
-                padding-top: 0;
-                padding-bottom: 0;
-            }
         }
 
         // See PreviewWrapper: below `sm` the sample keeps its desktop width
