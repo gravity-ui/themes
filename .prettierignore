@@ -1,0 +1,9 @@
+node_modules
+dist
+renderer/.next
+renderer/next-env.d.ts
+renderer/tsconfig.tsbuildinfo
+output
+package-lock.json
+themes/*.theme.json
+licenses
