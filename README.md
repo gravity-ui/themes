@@ -1,38 +1,143 @@
-# Gravity UI themes (local handoff, not published)
+# Gravity UI Themes
 
-The target public repository is https://github.com/gravity-ui/themes. This directory has not been pushed there. `@gravity-ui/themes` and version `0.0.0` are preliminary; `private: true` prevents accidental npm publication. A public-registry lookup returned 404, which does not establish permission to publish that name.
+A public catalog of [Gravity UI](https://gravity-ui.com) themes with metadata, validated Themer JSON and embedded light/dark previews. The package also provides shared submission validation, import normalization and a built-in font registry.
 
-## Build and renderer
+## Installation
 
-Run `npm ci` followed by `npm run build` to validate theme JSON and produce `dist/catalog.json`, declarations and validators. The checked-in lockfile was exercised with a clean install. The package uses `prepare: npm run build` so an exact Git SHA dependency builds `dist` before npm packs it. `prepack` alone does not run when npm installs a Git dependency: this was reproduced with successful install/ci but a missing `dist/catalog.json`. There is no duplicate prepack or registry fallback. PNGs are embedded as data URLs, so landing does not need a separate static host or a local gallery fallback.
+```sh
+npm install @gravity-ui/themes
+```
 
-Run `npm run render:build` to build the isolated renderer. CI installs Chromium with `npx playwright install --with-deps chromium`, starts `npm run render:start`, and runs `npm run render:submission`. The renderer decodes the bounded deflate+base64 `submission` workflow input; it never fetches a submitted URL or checks out contributor code. PreviewLayout and TablePreview were extracted from landing with fixed sample dates. The browser viewport is 740x375, while the capture root remains 555x375 at DPR 2 and PNG output remains 740x500. This selects the natural ~740-wide sample layout without changing its CSS or composition; a 555px viewport instead triggers the sample's max-width:577px rule and forces a 1080px minimum width, moving the brand button outside the crop.
+## Usage
 
-All six supported built-in font families are pinned public `@fontsource` dependencies. The imports cover the original Google Fonts family/weight/style selections, including regular, medium and bold where available. Inter does not import italics, and Titillium Web has no 900 italic selection. Font license texts are in `licenses/` and included in the packed package. Exact binary equivalence with the Google Fonts CDN is not claimed.
+The default entry point is a JSON array. Each entry contains `metadata`, `payload` and `previews`. Both previews are PNG data URLs, ready for an image's `src`; no separate asset host is needed.
 
-## Required owner setup (not configured or live-verified)
+```ts
+import catalog from '@gravity-ui/themes';
+import type {ThemePayload} from '@gravity-ui/themes/schema';
 
-1. Review and transfer this protocol change through a draft PR, not a direct main push. The selected package transport remains one exact Git commit SHA dependency, not npm publication. Keep `private: true`. Landing currently pins `a1d9df91e84ac8ad061d76d81f8ed2a0a8e06600`; these local workflow edits are not part of that commit. After separately approved source publication, update the dependency to the reviewed commit containing this protocol, regenerate the shipping lockfile and verify an actual clean Git install/build. Do not invent a replacement SHA or use a local-package fallback.
-2. Configure a GitHub App installation on `gravity-ui/themes` with Actions write and Contents read. Landing uses that App only for dispatch and artifact reads. User OAuth credentials are never sent to CI.
-3. Create a protected immutable lightweight renderer tag at the reviewed commit. Configure landing's `THEMES_REPOSITORY=gravity-ui/themes`, `THEMES_RENDERER_TAG`, and 40-character `THEMES_RENDERER_REVISION`. Set repository variable `TRUSTED_RENDERER_REVISION` to the same commit. Dispatch resolves the tag; the workflow checks expected revision, `github.sha`, and this allowlist. Contributor refs are never checked out.
-4. Configure existing OAuth values `GITHUB_OAUTH_CLIENT_ID`, `GITHUB_OAUTH_CLIENT_SECRET`, `THEMES_SESSION_SECRET` (at least 32 characters), plus `THEMES_GITHUB_APP_ID`, `THEMES_GITHUB_APP_INSTALLATION_ID`, `THEMES_GITHUB_APP_PRIVATE_KEY`. The existing encrypted httpOnly session supplies the user token for fork/commit/PR. The receipt signing key is HKDF-SHA256 derived from the server-only session secret with a separate submission-receipt context. No signing or OAuth secrets are passed to Actions.
+const entry = catalog.find(({metadata}) => metadata.id === 'coffee');
+if (entry) {
+  const payload: ThemePayload = entry.payload;
+  const color = payload['--g-color-base-brand'];
+  const lightBrand = 'value' in color ? color.value : color.light?.value;
+  const preview = entry.previews.light;
+  // Use preview as an image src and lightBrand as the brand color.
+}
+```
 
-## Receipt protocol
+The root export is JSON, not executable ESM. Bundlers can import it as shown above; CommonJS consumers can use `require('@gravity-ui/themes')`. Native Node.js ESM needs a JSON import attribute: `import catalog from '@gravity-ui/themes' with {type: 'json'}`. TypeScript consumers should enable `esModuleInterop` for the default import and use `moduleResolution: "node16"`, `"nodenext"` or `"bundler"` to resolve the exported subpaths.
 
-Prepare validates and returns a 24-hour HS256 JWT and canonical immutable input before any dispatch. The browser saves both under the numeric GitHub account id. The receipt binds user, job, input hash, fixed upstream commit/tree, repository and trusted renderer revision/tag. Expired, altered or wrong-account receipts fail closed. Reauthentication with the same account resumes the saved receipt.
+A payload entry is either `{value: string, ref?: string}` or a per-mode object with `light` and/or `dark` leaves. Narrow with `'value' in entry` before reading a common value. The pinned Themer parser expects both modes for per-mode entries; when accepting arbitrary submitted payloads, pass common entries and complete mode pairs to `parseJSON` (as the renderer does). The bundled catalog has complete pairs.
 
-Dispatch reconciles the trusted run title before writing. It accepts writes only within two minutes of preparation, without renewable permits. Each attempted external dispatch reserves one of three rolling-24-hour slots per numeric user id in the current process, including ambiguous responses. Restarts and separate instances have independent quotas by design. Status is read-only and never dispatches or consumes quota. Browser dispatch intent is saved before the write; ambiguous responses are polled, not automatically redispatched. If no run appears ten minutes after the dispatch window, the browser receives an explicit unconfirmed error.
+### Public entry points
 
-A JWT is replayable, not one-time. GitHub has no atomic dispatch idempotency key: simultaneous requests on different instances or before a run becomes visible can create duplicate CI runs. The short fixed window and per-instance quota bound retries; they do not provide global exactly-once dispatch. Matching runs are reconciled by lowest run id. Do not renew a receipt to retry an ambiguous write automatically.
+| Import                                  | Contents                                                                       |
+| --------------------------------------- | ------------------------------------------------------------------------------ |
+| `@gravity-ui/themes`                    | Catalog JSON and its declarations                                              |
+| `@gravity-ui/themes/schema`             | Metadata/payload types, tags, id generation and metadata validation            |
+| `@gravity-ui/themes/validation`         | `buildThemeMetadata`, `validateThemePayload` and validation errors             |
+| `@gravity-ui/themes/normalize-imported` | `normalizeImportedTheme`, which updates a parsed theme in place and returns it |
+| `@gravity-ui/themes/draft`              | Submission draft types, text cleanup and field validation                      |
+| `@gravity-ui/themes/fonts`              | `DEFAULT_FONT_FAMILIES`, `BUILT_IN_FONTS` and `isBuiltInFontFamily`            |
 
-The full serialized dispatch body must fit 65,535 characters. Canonical JSON uses bounded deflate+base64, is limited to the existing 1 MiB input envelope and is never truncated. The schema has unbounded key/ref lengths, so not every schema-valid theme can fit; oversize transport returns an explicit error. Workflow inputs are data passed via environment variables, never shell source, code, contributor refs or submitted URLs.
+Use these entry points instead of importing implementation files from `dist/`.
 
-Finalization re-reads the trusted workflow artifact and verifies run id/event/path/revision, user/job/input hash and both PNG digests/dimensions before GitHub writes. The artifact carries canonical input for stateless recovery. One deterministic branch per receipt uses its signed fixed upstream snapshot. Existing branches must have the exact tree/message/parent; external edits are rejected. PR reconciliation includes closed and merged PRs, so a lost response or later closure is not a reason to create another PR. Concurrent finalization converges on the same branch and PR. GitHub remains authoritative, not client-provided phase or PR data.
+## Development
 
-## Contracts and activation limits
+Use Node.js 24 and npm 11 or newer. `.nvmrc` selects the development Node major.
 
-- GitHub input limit: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch
-- GitHub dispatch: https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event. Live API compatibility is not verified by offline checks.
-- The artifact is exactly one bounded `result.json`, containing canonical input and light/dark 740x500 PNGs. Full ZIP CRC/local-central consistency and streaming network bounds remain outside this change.
-- Landing currently pins catalog commit `a1d9df91e84ac8ad061d76d81f8ed2a0a8e06600`. Local workflow changes do not update that remote commit. Activation requires a separately approved source publication, a reviewed immutable renderer revision/tag and landing dependency pin/lock update. This patch does not invent a new SHA or publish anything.
-- No live Actions run, OAuth flow or PR creation is authorized for this handoff. Offline mocks establish mechanics only. Existing font and renderer evidence predates this protocol change. Next 14.2.24 retains its previously noted published security advisory; upgrading it is outside this patch.
+```sh
+npm ci
+npm test
+npm run render:build
+```
+
+`npm ci` only installs dependencies. `npm test` runs typecheck (library, renderer and scripts), ESLint, Stylelint, Prettier and the library/catalog build. It is a package-check command, not a unit-test suite. `npm run build` can also be used independently to produce `dist/`. CI runs the individual checks and builds on pull requests and pushes to `main`.
+
+## Contributing
+
+### Add a theme
+
+1. Export JSON from [Themer](https://gravity-ui.com/themer).
+2. Choose a unique kebab-case id. Add `themes/<id>.theme.json` and `themes/<id>.meta.json`. The metadata `id` must equal the file name without `.meta.json`.
+3. Fill metadata according to [`themes/meta.schema.json`](themes/meta.schema.json): name, author, English/Russian descriptions, tags and `#RRGGBB` brand color. Names must be unique after trimming and case normalization.
+4. Add `previews/<id>-light.png` and `previews/<id>-dark.png`, both 740 by 500 pixels. Generate them with the pinned renderer below; do not substitute images from an unrelated renderer revision.
+5. Run `npm test`, `npm run render:build` and `npm pack --dry-run`. Submit a pull request with a Conventional Commit title, such as `feat(themes): add a new theme`.
+
+The catalog build validates metadata and payloads and embeds both previews into `dist/catalog.json`. Raw PNGs remain source assets but are not duplicated in the npm package. Font licenses in `licenses/` are included in the package.
+
+### Generate or update previews
+
+Build once with `npm run build` and `npm run render:build`, install the pinned Chromium with `npx playwright install --with-deps chromium`, then run `npm run render:start` in a separate terminal. The renderer listens at `http://127.0.0.1:3010`.
+
+`npm run render:submission` reads these environment variables, using the same protocol as the render workflow:
+
+| Variable            | Value                                                                      |
+| ------------------- | -------------------------------------------------------------------------- |
+| `SUBMISSION`        | Raw-deflate compressed UTF-8 JSON `{metadata, payload}`, encoded as base64 |
+| `JOB_ID`            | A 36-character lowercase hexadecimal/hyphen correlation id                 |
+| `USER_ID`           | A positive safe-integer GitHub account id                                  |
+| `THEME_HASH`        | SHA-256 of `JSON.stringify({metadata, payload})` after payload validation  |
+| `RENDERER_REVISION` | The full 40-character renderer commit SHA                                  |
+| `GITHUB_SHA`        | The same commit SHA                                                        |
+| `GITHUB_RUN_ID`     | The numeric run id                                                         |
+
+For a local regeneration, construct the environment from the source files and run the same script (replace `coffee` with your id):
+
+```sh
+node --input-type=module <<'JS'
+import {createHash} from 'node:crypto';
+import {readFileSync, writeFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+import {execFileSync} from 'node:child_process';
+import {deflateRawSync} from 'node:zlib';
+
+const require = createRequire(import.meta.url);
+const {validateThemePayload} = require('./dist/validation.js');
+const id = 'coffee';
+const metadata = JSON.parse(readFileSync(`themes/${id}.meta.json`, 'utf8'));
+const payload = validateThemePayload(JSON.parse(readFileSync(`themes/${id}.theme.json`, 'utf8')));
+const canonical = JSON.stringify({metadata, payload});
+const revision = execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim();
+execFileSync(process.execPath, ['scripts/render-submission.mjs'], {
+    stdio: 'inherit',
+    env: {
+        ...process.env,
+        SUBMISSION: deflateRawSync(Buffer.from(canonical)).toString('base64'),
+        JOB_ID: '00000000-0000-0000-0000-000000000000',
+        USER_ID: '1',
+        THEME_HASH: createHash('sha256').update(canonical).digest('hex'),
+        RENDERER_REVISION: revision,
+        GITHUB_SHA: revision,
+        GITHUB_RUN_ID: '0',
+    },
+});
+const result = JSON.parse(readFileSync('output/result.json', 'utf8'));
+for (const mode of ['light', 'dark']) {
+    writeFileSync(`previews/${id}-${mode}.png`, Buffer.from(result.files[mode], 'base64'));
+}
+JS
+```
+
+The six font families are pinned `@fontsource` dependencies, served locally by the renderer. The browser viewport is 740 by 375 at DPR 2; the capture root is 555 by 375, resized to a 740 by 500 PNG. Keep these dimensions and the pinned dependencies unchanged when regenerating comparable previews.
+
+## Trusted renderer workflow
+
+[`render-submission.yml`](.github/workflows/render-submission.yml) is dispatched at an immutable protected renderer tag. Set repository variable `TRUSTED_RENDERER_REVISION` to the tag's full reviewed commit SHA. The `revision` input, `github.sha` and this allowlist must match before checkout. The workflow never checks out contributor refs or fetches submitted URLs. Workflow inputs are passed through environment variables, never interpolated as shell source.
+
+Dispatch inputs are `job_id`, `revision`, `theme_hash`, `user_id` and `submission`, corresponding to the variables above. A dispatcher needs Actions write and Contents read access to this repository. Credentials for dispatch stay with the dispatcher, not in theme data or workflow inputs.
+
+The complete serialized workflow-dispatch input body must fit GitHub's 65,535-character limit. The decoded submission is bounded to 1 MiB and is never truncated. Oversize input must be rejected by the dispatcher before sending it. See [GitHub's workflow-dispatch limits](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch).
+
+The renderer validates metadata, rebuilds payloads from allowed fields and checks the canonical input hash before rendering. It blocks browser requests outside its loopback origin. The artifact named `theme-job:<id>` in the run title corresponds to an uploaded artifact named `theme-job-<id>`, retained for one day, with exactly one `result.json`. That file contains canonical input, numeric user/run ids, job id, revision, theme hash, both base64 PNGs and their SHA-256 hashes. Consumers must verify the trusted run identity/revision and the input correlation, PNG hashes and dimensions before using the result for repository writes. A matching title alone does not authenticate a run.
+
+## Releases
+
+[`release.yml`](.github/workflows/release.yml) runs [gravity-ui/release-action](https://github.com/gravity-ui/release-action) on pushes to `main`. The action installs dependencies, runs `npm test`, and uses Conventional Commits to prepare a version/changelog release pull request. Merging that release pull request creates the GitHub release and publishes the public npm version. Ordinary feature pushes do not each publish a version.
+
+Repository maintainers configure `GRAVITY_UI_APP_ID`, `GRAVITY_UI_APP_PRIVATE_KEY` and `GRAVITY_UI_BOT_NPM_TOKEN` as GitHub Actions secrets. Keep them out of source files and submission inputs. Release approval and merge remain maintainer actions.
+
+## License
+
+[MIT](LICENSE). Bundled font license texts are in [`licenses/`](licenses/).
