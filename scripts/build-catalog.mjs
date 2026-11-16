@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url);
 const {validateThemeMetadata} = require('../dist/schema.js');
 const {validateThemePayload} = require('../dist/validation.js');
 const themes = [];
-const names = new Set();
+const names = new Map();
 for (const file of (await readdir('themes')).filter((name) => name.endsWith('.meta.json')).sort()) {
     try {
         const metadata = JSON.parse(await readFile(`themes/${file}`, 'utf8'));
@@ -13,8 +13,11 @@ for (const file of (await readdir('themes')).filter((name) => name.endsWith('.me
         if (metadata.id !== expectedId) {
             throw new Error(`id "${metadata.id}" must match file name "${expectedId}"`);
         }
-        if (names.has(metadata.name.trim().toLowerCase())) throw new Error('Duplicate theme name');
-        names.add(metadata.name.trim().toLowerCase());
+        const name = metadata.name.trim().toLowerCase();
+        if (names.has(name)) {
+            throw new Error(`Duplicate theme name "${metadata.name}"; first declared in themes/${names.get(name)}`);
+        }
+        names.set(name, file);
         const payload = validateThemePayload(JSON.parse(await readFile(`themes/${metadata.id}.theme.json`, 'utf8')));
         const previews = {};
         for (const mode of ['light', 'dark']) previews[mode] = 'data:image/png;base64,' + (await readFile(`previews/${metadata.id}-${mode}.png`)).toString('base64');
