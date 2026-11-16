@@ -35,7 +35,7 @@ interface PreviewLayoutProps {
     id: string;
     breadCrumbsItems: string[];
     styles?: string;
-    children: (props: any) => React.ReactNode;
+    children: (props: {justify: 'flex-start'}) => React.ReactNode;
     hideAsideMenu?: boolean;
     scrollableContent?: boolean;
     noPadding?: boolean;
@@ -55,7 +55,7 @@ export const PreviewLayout = ({
     hideThemeToggle = false,
 }: PreviewLayoutProps) => {
     const [theme, setTheme] = useState<Theme>(initialTheme);
-    const justify = 'flex-start';
+    const justify = 'flex-start' as const;
     const [isCompact, setCompact] = useState<boolean>(true);
     const containerRef = React.useRef<HTMLDivElement>(null);
 

@@ -1,4 +1,6 @@
-export const labels = [
+import type {TableData} from './TablePreview';
+
+export const labels: TableData['status'][] = [
     {title: 'In progress', theme: 'info'},
     {title: 'Open', theme: 'success'},
     {title: 'Testing', theme: 'unknown'},

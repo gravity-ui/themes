@@ -11,7 +11,6 @@ import {
     Table,
     TableAction,
     TableColumnConfig,
-    TableDataItem,
     Text,
     TextInput,
     User,
@@ -29,7 +28,7 @@ import './TablePreview.scss';
 
 const block = (name: string) => blockFactory('gravity-ui-landing-' + name);
 
-type TableData = {
+export type TableData = {
     user: string;
     project: string;
     status: {
@@ -71,7 +70,7 @@ const tableColumns: TableColumnConfig<TableData>[] = [
     },
 ];
 
-const getRowActions = (): TableAction<Record<string, any>>[] => {
+const getRowActions = (): TableAction<TableData>[] => {
     return [
         {
             text: 'Edit',
@@ -96,9 +95,9 @@ const getRowActions = (): TableAction<Record<string, any>>[] => {
 
 const b = block('table-preview');
 
-const SelectionTable = withTableSelection(withTableSorting(withTableActions(Table)));
+const SelectionTable = withTableSelection(withTableSorting(withTableActions<TableData>(Table)));
 
-export const TablePreview = ({justify}: {justify?: string}) => {
+export const TablePreview = ({justify}: {justify?: 'flex-start'}) => {
     const [tableSelectedIds, setTableSelectedIds] = React.useState(['1']);
     const [state, setState] = React.useState({page: 1, pageSize: 10, total: 1000});
 
@@ -135,7 +134,7 @@ export const TablePreview = ({justify}: {justify?: string}) => {
             <div className={b('table-wrapper')}>
                 <SelectionTable
                     className={b()}
-                    columns={tableColumns as TableColumnConfig<TableDataItem>[]}
+                    columns={tableColumns}
                     data={tableData}
                     selectedIds={tableSelectedIds}
                     getRowActions={getRowActions}
