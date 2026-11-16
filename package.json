@@ -64,5 +64,9 @@
     "type": "git",
     "url": "https://github.com/gravity-ui/themes.git"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11"
+  }
 }
