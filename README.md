@@ -53,7 +53,7 @@ npm test
 npm run render:build
 ```
 
-`npm ci` only installs dependencies. `npm test` builds the library/catalog before running typecheck (library, renderer and scripts), ESLint, Stylelint and Prettier. The script typecheck resolves the generated library declarations from `dist/`. It is a package-check command, not a unit-test suite. `npm run build` can also be used independently to produce `dist/`. CI runs `npm test` and the renderer build on pull requests and pushes to `main`.
+`npm ci` installs dependencies and builds the library/catalog through `prepare`. Keep this lifecycle so Git dependencies also receive `dist/` until consumers migrate to an npm version. The render workflow reuses that build; `npm test` deliberately rebuilds to validate any source changes made since installation before running typecheck (library, renderer and scripts), ESLint, Stylelint and Prettier. The script typecheck resolves the generated library declarations from `dist/`. It is a package-check command, not a unit-test suite. `npm run build` can also be used independently to produce `dist/`. CI runs `npm test` and the renderer build on pull requests and pushes to `main`.
 
 ## Contributing
 
@@ -69,7 +69,7 @@ The catalog build validates metadata and payloads and embeds both previews into 
 
 ### Generate or update previews
 
-Build once with `npm run build` and `npm run render:build`, install the pinned Chromium with `npx playwright install --with-deps chromium`, then run `npm run render:start` in a separate terminal. The renderer listens at `http://127.0.0.1:3010`.
+After `npm ci`, run `npm run render:build`, install the pinned Chromium with `npx playwright install --with-deps chromium`, then run `npm run render:start` in a separate terminal. The renderer listens at `http://127.0.0.1:3010`.
 
 `npm run render:submission` reads these environment variables, using the same protocol as the render workflow:
 

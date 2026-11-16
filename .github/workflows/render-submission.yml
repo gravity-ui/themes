@@ -51,7 +51,7 @@ jobs:
           key: renderer-build-${{ runner.os }}-${{ github.sha }}
       - name: Install packages and build renderer
         if: steps.build-cache.outputs.cache-hit != 'true'
-        run: npm ci && npm run build && npm run render:build
+        run: npm ci && npm run render:build
       # Saved before rendering: a failed submission still warms the next run.
       - name: Save renderer build
         if: steps.build-cache.outputs.cache-hit != 'true'
