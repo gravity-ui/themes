@@ -1,0 +1,45 @@
+# Publishes a -beta version of @gravity-ui/themes from any branch except main.
+# Run it manually from the Actions tab.
+name: Release beta version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        required: false
+        description: 'Exact version to publish, e.g. 0.1.0-beta.0. Must contain "beta". Leave empty to bump the prerelease number.'
+
+jobs:
+  release-beta:
+    if: github.ref_name != 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check version input
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [ -n "$VERSION" ] && [[ "$VERSION" != *beta* ]]; then
+            echo "The version must contain 'beta'"
+            exit 1
+          fi
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm ci
+      - run: npm test
+      - name: Set version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [ -n "$VERSION" ]; then
+            npm version "$VERSION" --no-git-tag-version
+          else
+            npm version prerelease --preid=beta --no-git-tag-version
+          fi
+      - name: Publish
+        run: npm publish --tag beta --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GRAVITY_UI_BOT_NPM_TOKEN }}
