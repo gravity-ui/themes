@@ -4,7 +4,7 @@ $gridBreakpoints: ('sm': 577px, 'md': 769px, 'lg': 1081px);
 @use '~@gravity-ui/uikit/styles/themes/_index.scss' as themes;
 
 $block: '.#{$ns}themes-preview-layout';
-// Matches the width TasksPreview pins itself to.
+// Minimum width retained by the desktop sample on small viewports.
 $desktopSampleWidth: 1080px;
 
 #{$block} {
@@ -80,8 +80,7 @@ $desktopSampleWidth: 1080px;
 
         }
 
-        // See PreviewWrapper: below `sm` the sample keeps its desktop width
-        // and the content area pans horizontally rather than collapsing.
+        // Below `sm` the sample keeps its desktop width and pans horizontally.
         @media (max-width: map-get($gridBreakpoints, 'sm')) {
             overflow-x: auto;
 
