@@ -24,7 +24,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - name: Install packages
-        run: npm ci
+        run: npm ci --ignore-scripts
       - name: Check conventional title
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
