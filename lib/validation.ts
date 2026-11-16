@@ -1,4 +1,3 @@
-
 import {
     createPrivateColorCssVariable,
     createUtilityColorCssVariable,
@@ -22,7 +21,6 @@ import {
     validateSubmissionDraft,
 } from './draft';
 import {DEFAULT_FONT_FAMILIES, isBuiltInFontFamily} from './fonts';
-
 
 
 // Shared validation for catalog entries and submitted themes.
@@ -85,7 +83,7 @@ export function buildThemeMetadata(draft: unknown, author: SubmissionAuthor): Th
             url: `https://github.com/${author.login}`,
         },
         description: {en: descriptionEn, ru: descriptionRu},
-        tags: tags as ThemeTag[],
+        tags,
         brandColor: normalizeBrandColor(value.brandColor),
     };
 
