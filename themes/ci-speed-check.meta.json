@@ -1,0 +1,15 @@
+{
+    "$schema": "./meta.schema.json",
+    "id": "ci-speed-check",
+    "name": "CI speed check",
+    "author": {
+        "name": "Aleksandr Iakimov",
+        "url": "https://github.com/Sociopacific"
+    },
+    "description": {
+        "en": "Test submission to check preview rendering time. Will be closed.",
+        "ru": "Test submission to check preview rendering time. Will be closed."
+    },
+    "tags": [],
+    "brandColor": "#CBFF5C"
+}
