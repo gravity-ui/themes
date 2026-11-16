@@ -22,12 +22,11 @@ import React, {Fragment, useState} from 'react';
 
 
 import gravityUi from '../assets/gravity-ui.svg';
-import blockFactory from 'bem-cn-lite';
+import {block} from './block';
 
 
 import './PreviewLayout.scss';
 
-const block = (name: string) => blockFactory('gravity-ui-landing-' + name);
 
 const b = block('themes-preview-layout');
 

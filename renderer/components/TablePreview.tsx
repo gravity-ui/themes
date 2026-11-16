@@ -19,14 +19,13 @@ import {
     withTableSorting,
 } from '@gravity-ui/uikit';
 import React from 'react';
-import blockFactory from 'bem-cn-lite';
+import {block} from './block';
 
 import avatar1Asset from '../assets/avatar-1.png';
 import {labels, projects, tableData} from './constants';
 
 import './TablePreview.scss';
 
-const block = (name: string) => blockFactory('gravity-ui-landing-' + name);
 
 export type TableData = {
     user: string;
