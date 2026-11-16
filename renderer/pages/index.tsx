@@ -24,6 +24,6 @@ export default function Capture() {
     const css = generateCSS({theme: normalizeImportedTheme(parseJSON(data.payload), data.payload), ignoreDefaultValues: false, forPreview: true, libraries: ['illustrations']});
     return <div id="capture-root" className={`g-root g-root_theme_${data.mode}`} style={{width: 555, height: 375, overflow: 'hidden', background: 'var(--g-color-base-background)'}}>
         <style>{scopeCss(css, 'gravity-ui-landing-themes-preview-layout')}</style>
-        <style>{scopeCss(css, 'gravity-ui-landing-themes-preview-wrapper')}</style><div style={{width: 740}}><PreviewLayout id="table" breadCrumbsItems={['Table']} initialTheme={data.mode}>{(props) => <TablePreview {...props} />}</PreviewLayout></div>
+<div style={{width: 740}}><PreviewLayout id="table" breadCrumbsItems={['Table']} initialTheme={data.mode}>{(props) => <TablePreview {...props} />}</PreviewLayout></div>
     </div>;
 }
