@@ -66,5 +66,31 @@
   "engines": {
     "node": ">=24",
     "npm": ">=11"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/catalog.d.ts",
+      "default": "./dist/catalog.json"
+    },
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "default": "./dist/schema.js"
+    },
+    "./validation": {
+      "types": "./dist/validation.d.ts",
+      "default": "./dist/validation.js"
+    },
+    "./normalize-imported": {
+      "types": "./dist/normalize-imported.d.ts",
+      "default": "./dist/normalize-imported.js"
+    },
+    "./draft": {
+      "types": "./dist/draft.d.ts",
+      "default": "./dist/draft.js"
+    },
+    "./fonts": {
+      "types": "./dist/fonts.d.ts",
+      "default": "./dist/fonts.js"
+    }
   }
 }
