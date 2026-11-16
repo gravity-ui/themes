@@ -34,7 +34,6 @@ import './PreviewLayout.scss';
 const b = block('themes-preview-layout');
 
 interface PreviewLayoutProps {
-    title: string;
     id: string;
     breadCrumbsItems: string[];
     styles?: string;
