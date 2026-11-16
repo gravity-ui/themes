@@ -1,7 +1,10 @@
 import {inflateRawSync} from 'node:zlib';
 
 // The workflow passes data through the environment, never through shell source.
-/** @param {unknown} encoded @returns {{metadata: unknown, payload: unknown}} */
+/**
+ * @param {unknown} encoded
+ * @returns {{metadata: unknown, payload: unknown}}
+ */
 export function readSubmissionInput(encoded) {
     if (
         typeof encoded !== 'string' ||
