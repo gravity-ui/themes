@@ -22,11 +22,7 @@ jobs:
           cache: npm
       - name: Install packages
         run: npm ci
-      - name: Lint files
-        run: npm run lint
-      - name: Typecheck library, renderer and scripts
-        run: npm run typecheck
-      - name: Build library and catalog
-        run: npm run build
+      - name: Verify library and catalog
+        run: npm test
       - name: Build renderer
         run: npm run render:build

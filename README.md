@@ -53,7 +53,7 @@ npm test
 npm run render:build
 ```
 
-`npm ci` only installs dependencies. `npm test` runs typecheck (library, renderer and scripts), ESLint, Stylelint, Prettier and the library/catalog build. It is a package-check command, not a unit-test suite. `npm run build` can also be used independently to produce `dist/`. CI runs the individual checks and builds on pull requests and pushes to `main`.
+`npm ci` only installs dependencies. `npm test` builds the library/catalog before running typecheck (library, renderer and scripts), ESLint, Stylelint and Prettier. The script typecheck resolves the generated library declarations from `dist/`. It is a package-check command, not a unit-test suite. `npm run build` can also be used independently to produce `dist/`. CI runs `npm test` and the renderer build on pull requests and pushes to `main`.
 
 ## Contributing
 
