@@ -32,7 +32,7 @@ export interface ThemeMetadata {
     brandColor: string;
 }
 
-/** A common CSS-variable value or a light/dark pair from the Themer JSON format. */
+/** A single CSS-variable value. */
 export interface ThemeValue {
     value: string;
     ref?: string;
@@ -40,6 +40,7 @@ export interface ThemeValue {
 
 export type ThemeModeValue = Partial<Record<ThemePreviewMode, ThemeValue>>;
 
+/** CSS-variable values stored as common values or light/dark pairs in the Themer JSON format. */
 export type ThemePayload = Record<string, ThemeValue | ThemeModeValue>;
 
 const KEBAB_CASE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
