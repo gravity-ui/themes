@@ -1,6 +1,4 @@
 $ns: 'gravity-ui-landing-';
-$gridBreakpoints: ('sm': 576px, 'md': 768px, 'lg': 992px);
-@use '~@gravity-ui/uikit/styles/themes/_index.scss' as themes;
 
 $block: '.#{$ns}table-preview';
 
