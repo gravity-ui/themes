@@ -11,6 +11,7 @@ import {
     isUtilityColorCssVariable,
     parsePrivateColorCssVariable,
 } from '@gravity-ui/uikit-themer';
+
 import type {ThemePayload} from './schema';
 
 // Keep JSON references in the grammar understood by the pinned Themer version.
@@ -45,7 +46,10 @@ export function normalizeImportedTheme(theme: GravityTheme, payload?: ThemePaylo
             const palette = mainTokenPrivates[variant];
             for (const shade of Object.keys(palette)) {
                 const key = shade as keyof typeof palette;
-                if (isBlank(palette[key])) { delete palette[key]; continue; }
+                if (isBlank(palette[key])) {
+                    delete palette[key];
+                    continue;
+                }
                 const normalized = normalizeColorOptions(palette[key]);
                 if (normalized) palette[key] = normalized;
             }
@@ -64,7 +68,8 @@ export function normalizeImportedTheme(theme: GravityTheme, payload?: ThemePaylo
         const ref = entry && 'value' in entry ? entry.ref : undefined;
         if (typeof ref === 'string' && isFontCssVariable(ref)) {
             const family = getKeyFromCssFontVariable(ref);
-            if (Object.hasOwn(theme.typography.fontFamilies, family)) settings['font-family'] = family;
+            if (Object.hasOwn(theme.typography.fontFamilies, family))
+                settings['font-family'] = family;
         }
     }
     return theme;

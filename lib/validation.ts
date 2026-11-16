@@ -7,21 +7,20 @@ import {
 import chroma from 'chroma-js';
 
 import {
-    type ThemeMetadata,
-    type ThemePayload,
-    type ThemeModeValue,
-    type ThemeValue,
-    type ThemeTag,
-    toThemeId,
-    validateThemeMetadata,
-} from './schema';
-import {
     type SubmissionFieldErrors,
     cleanSubmissionText as cleanText,
     validateSubmissionDraft,
 } from './draft';
 import {DEFAULT_FONT_FAMILIES, isBuiltInFontFamily} from './fonts';
-
+import {
+    type ThemeMetadata,
+    type ThemeModeValue,
+    type ThemePayload,
+    type ThemeTag,
+    type ThemeValue,
+    toThemeId,
+    validateThemeMetadata,
+} from './schema';
 
 // Shared validation for catalog entries and submitted themes.
 

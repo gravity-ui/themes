@@ -1,6 +1,11 @@
 $ns: 'gravity-ui-';
 // Public page-constructor styles/variables.scss values used by the source sample.
-$gridBreakpoints: ('sm': 577px, 'md': 769px, 'lg': 1081px);
+$gridBreakpoints: (
+    'sm': 577px,
+    'md': 769px,
+    'lg': 1081px,
+);
+
 @use '~@gravity-ui/uikit/styles/themes/_index.scss' as themes;
 
 $block: '.#{$ns}themes-preview-layout';
@@ -69,15 +74,12 @@ $desktopSampleWidth: 1080px;
         padding: var(--g-spacing-6) calc(var(--g-spacing-1) * 24);
         border-radius: 16px;
 
-
         @media (max-width: map-get($gridBreakpoints, 'lg')) {
             padding: var(--g-spacing-6) calc(var(--g-spacing-10));
-
         }
 
         @media (max-width: map-get($gridBreakpoints, 'md')) {
             padding: var(--g-spacing-6) calc(var(--g-spacing-6));
-
         }
 
         // Below `sm` the sample keeps its desktop width and pans horizontally.

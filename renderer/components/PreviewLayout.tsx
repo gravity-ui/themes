@@ -1,3 +1,5 @@
+import React, {Fragment, useState} from 'react';
+
 import {
     ChartAreaStackedNormalized,
     Gear,
@@ -18,15 +20,12 @@ import {
     Theme,
     ThemeProvider,
 } from '@gravity-ui/uikit';
-import React, {Fragment, useState} from 'react';
 
-
-import gravityUi from '../assets/gravity-ui.svg';
 import {block} from './block';
 
+import gravityUi from '../assets/gravity-ui.svg';
 
 import './PreviewLayout.scss';
-
 
 const b = block('themes-preview-layout');
 

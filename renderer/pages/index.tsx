@@ -1,10 +1,12 @@
-import type {ThemePayload, ThemePreviewMode} from '../../lib/schema';
 import React from 'react';
+
 import {generateCSS, parseJSON} from '@gravity-ui/uikit-themer';
-import {PREVIEW_LAYOUT_CLASS} from '../components/block';
+
+import {normalizeImportedTheme} from '../../lib/normalize-imported';
+import type {ThemePayload, ThemePreviewMode} from '../../lib/schema';
 import {PreviewLayout} from '../components/PreviewLayout';
 import {TablePreview} from '../components/TablePreview';
-import {normalizeImportedTheme} from '../../lib/normalize-imported';
+import {PREVIEW_LAYOUT_CLASS} from '../components/block';
 
 interface RenderThemeData {
     payload: ThemePayload;
@@ -31,26 +33,59 @@ const toParserPayload = (payload: ThemePayload): Parameters<typeof parseJSON>[0]
 };
 
 // Scope generated CSS to the isolated preview.
-const scopeCss = (css: string, name: string) => css
-    .replace('.g-root {', `.g-root.${name}, .${name} .g-root {`)
-    .replace('.g-root_theme_dark {', `.g-root_theme_dark.${name}_theme_dark, .${name}_theme_dark .g-root_theme_dark {`)
-    .replace('.g-root_theme_light {', `.g-root_theme_light.${name}_theme_light, .${name}_theme_light .g-root_theme_light {`);
+const scopeCss = (css: string, name: string) =>
+    css
+        .replace('.g-root {', `.g-root.${name}, .${name} .g-root {`)
+        .replace(
+            '.g-root_theme_dark {',
+            `.g-root_theme_dark.${name}_theme_dark, .${name}_theme_dark .g-root_theme_dark {`,
+        )
+        .replace(
+            '.g-root_theme_light {',
+            `.g-root_theme_light.${name}_theme_light, .${name}_theme_light .g-root_theme_light {`,
+        );
 export default function Capture() {
     const [data, setData] = React.useState<RenderThemeData | null>(null);
     React.useEffect(() => {
         window.renderTheme = setData;
-        return () => { delete window.renderTheme; };
+        return () => {
+            delete window.renderTheme;
+        };
     }, []);
     React.useEffect(() => {
         if (!data) return;
-        document.fonts.ready.then(() => requestAnimationFrame(() => requestAnimationFrame(() => {
-            document.documentElement.dataset.themePreviewReady = '1';
-        })));
+        document.fonts.ready.then(() =>
+            requestAnimationFrame(() =>
+                requestAnimationFrame(() => {
+                    document.documentElement.dataset.themePreviewReady = '1';
+                }),
+            ),
+        );
     }, [data]);
     if (!data) return null;
-    const css = generateCSS({theme: normalizeImportedTheme(parseJSON(toParserPayload(data.payload)), data.payload), ignoreDefaultValues: false, forPreview: true, libraries: ['illustrations']});
-    return <div id="capture-root" className={`g-root g-root_theme_${data.mode}`} style={{width: 555, height: 375, overflow: 'hidden', background: 'var(--g-color-base-background)'}}>
-        <style>{scopeCss(css, PREVIEW_LAYOUT_CLASS)}</style>
-<div style={{width: 740}}><PreviewLayout id="table" breadCrumbsItems={['Table']} initialTheme={data.mode}>{(props) => <TablePreview {...props} />}</PreviewLayout></div>
-    </div>;
+    const css = generateCSS({
+        theme: normalizeImportedTheme(parseJSON(toParserPayload(data.payload)), data.payload),
+        ignoreDefaultValues: false,
+        forPreview: true,
+        libraries: ['illustrations'],
+    });
+    return (
+        <div
+            id="capture-root"
+            className={`g-root g-root_theme_${data.mode}`}
+            style={{
+                width: 555,
+                height: 375,
+                overflow: 'hidden',
+                background: 'var(--g-color-base-background)',
+            }}
+        >
+            <style>{scopeCss(css, PREVIEW_LAYOUT_CLASS)}</style>
+            <div style={{width: 740}}>
+                <PreviewLayout id="table" breadCrumbsItems={['Table']} initialTheme={data.mode}>
+                    {(props) => <TablePreview {...props} />}
+                </PreviewLayout>
+            </div>
+        </div>
+    );
 }

@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {Copy, Pencil, Plus, TrashBin} from '@gravity-ui/icons';
 import {
     Button,
@@ -18,14 +20,13 @@ import {
     withTableSelection,
     withTableSorting,
 } from '@gravity-ui/uikit';
-import React from 'react';
-import {block} from './block';
 
-import avatar1Asset from '../assets/avatar-1.png';
+import {block} from './block';
 import {labels, projects, tableData} from './constants';
 
-import './TablePreview.scss';
+import avatar1Asset from '../assets/avatar-1.png';
 
+import './TablePreview.scss';
 
 export type TableData = {
     user: string;

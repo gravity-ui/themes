@@ -1,5 +1,6 @@
-import {readFile, readdir, mkdir, writeFile} from 'node:fs/promises';
+import {mkdir, readFile, readdir, writeFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
+
 const require = createRequire(import.meta.url);
 const {validateThemeMetadata} = require('../dist/schema.js');
 const {validateThemePayload} = require('../dist/validation.js');
@@ -15,17 +16,30 @@ for (const file of (await readdir('themes')).filter((name) => name.endsWith('.me
         }
         const name = metadata.name.trim().toLowerCase();
         if (names.has(name)) {
-            throw new Error(`Duplicate theme name "${metadata.name}"; first declared in themes/${names.get(name)}`);
+            throw new Error(
+                `Duplicate theme name "${metadata.name}"; first declared in themes/${names.get(name)}`,
+            );
         }
         names.set(name, file);
-        const payload = validateThemePayload(JSON.parse(await readFile(`themes/${metadata.id}.theme.json`, 'utf8')));
+        const payload = validateThemePayload(
+            JSON.parse(await readFile(`themes/${metadata.id}.theme.json`, 'utf8')),
+        );
         const previews = {};
-        for (const mode of ['light', 'dark']) previews[mode] = 'data:image/png;base64,' + (await readFile(`previews/${metadata.id}-${mode}.png`)).toString('base64');
+        for (const mode of ['light', 'dark'])
+            previews[mode] =
+                'data:image/png;base64,' +
+                (await readFile(`previews/${metadata.id}-${mode}.png`)).toString('base64');
         themes.push({metadata, payload, previews});
     } catch (error) {
-        throw new Error(`themes/${file}: ${error instanceof Error ? error.message : String(error)}`, {cause: error});
+        throw new Error(
+            `themes/${file}: ${error instanceof Error ? error.message : String(error)}`,
+            {cause: error},
+        );
     }
 }
 await mkdir('dist', {recursive: true});
 await writeFile('dist/catalog.json', JSON.stringify(themes));
-await writeFile('dist/catalog.d.ts', "import type {ThemeMetadata, ThemePayload} from './schema';\ndeclare const catalog: {metadata: ThemeMetadata; payload: ThemePayload; previews: Record<'light' | 'dark', string>}[];\nexport = catalog;\n");
+await writeFile(
+    'dist/catalog.d.ts',
+    "import type {ThemeMetadata, ThemePayload} from './schema';\ndeclare const catalog: {metadata: ThemeMetadata; payload: ThemePayload; previews: Record<'light' | 'dark', string>}[];\nexport = catalog;\n",
+);
