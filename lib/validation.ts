@@ -10,6 +10,8 @@ import chroma from 'chroma-js';
 import {
     type ThemeMetadata,
     type ThemePayload,
+    type ThemeModeValue,
+    type ThemeValue,
     type ThemeTag,
     toThemeId,
     validateThemeMetadata,
@@ -117,10 +119,7 @@ const FONT_NAME = `(?:'[\\w -]+'|"[\\w -]+"|[\\w-]+)`;
 const FONT_FAMILY_VALUE_RE = new RegExp(`^${FONT_NAME}(?:\\s*,\\s*${FONT_NAME})*$`);
 const BUILT_IN_FONT_REFS = DEFAULT_FONT_FAMILIES.map((type) => `${FONT_FAMILY_KEY_PREFIX}${type}`);
 
-interface PayloadValue {
-    value: string;
-    ref?: string;
-}
+type PayloadValue = ThemeValue;
 
 const isColorValue = (value: string) =>
     value === '' ||
@@ -211,7 +210,7 @@ export function validateThemePayload(value: unknown): ThemePayload {
     if (!entries.length || entries.length > MAX_PAYLOAD_KEYS) {
         throw new SubmissionValidationError('theme has an unexpected number of variables');
     }
-    const payload: Record<string, unknown> = {};
+    const payload: ThemePayload = {};
     for (const [key, item] of entries) {
         if (!PAYLOAD_KEY_RE.test(key) || !item || typeof item !== 'object') {
             throw new SubmissionValidationError(`unexpected theme variable ${key}`);
@@ -226,7 +225,7 @@ export function validateThemePayload(value: unknown): ThemePayload {
             continue;
         }
         const {light, dark, ...rest} = record;
-        const themed: Record<string, PayloadValue> = {};
+        const themed: ThemeModeValue = {};
         for (const [mode, modeValue] of [
             ['light', light],
             ['dark', dark],
@@ -251,15 +250,12 @@ export function validateThemePayload(value: unknown): ThemePayload {
     return normalizeColorReferences(payload);
 }
 
-function normalizeColorReferences(payload: Record<string, unknown>): ThemePayload {
+function normalizeColorReferences(payload: ThemePayload): ThemePayload {
     const resolve = (key: string, mode: 'light' | 'dark', visiting: Set<string>): string => {
         if (visiting.has(key)) {
             throw new SubmissionValidationError(`circular color reference ${key}`);
         }
-        const entry = payload[key] as
-            | PayloadValue
-            | Partial<Record<'light' | 'dark', PayloadValue>>
-            | undefined;
+        const entry = payload[key];
         const leaf = entry && ('value' in entry ? entry : entry[mode]);
         if (!leaf || !COLOR_KEY_RE.test(key)) {
             throw new SubmissionValidationError(`missing color reference ${key}`);
@@ -276,9 +272,7 @@ function normalizeColorReferences(payload: Record<string, unknown>): ThemePayloa
     };
     const normalized = {...payload};
     for (const key of Object.keys(payload).filter((name) => COLOR_KEY_RE.test(name))) {
-        const entry = payload[key] as
-            | PayloadValue
-            | Partial<Record<'light' | 'dark', PayloadValue>>;
+        const entry = payload[key];
         const normalize = (leaf: PayloadValue, mode: 'light' | 'dark'): PayloadValue =>
             COLOR_VAR_RE.test(leaf.value)
                 ? {value: resolve(key, mode, new Set()), ref: leaf.value.slice(4, -1)}
@@ -301,5 +295,5 @@ function normalizeColorReferences(payload: Record<string, unknown>): ThemePayloa
             normalized[key] = themed;
         }
     }
-    return normalized as ThemePayload;
+    return normalized;
 }

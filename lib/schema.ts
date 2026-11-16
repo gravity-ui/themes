@@ -39,7 +39,14 @@ export interface ThemeMetadata {
  * Raw output of `generateJSON` from `@gravity-ui/uikit-themer` — a flat dict of
  * CSS-variable-like keys (`--g-*`). Loaded lazily via dynamic import on apply.
  */
-export type ThemePayload = Record<string, {value: string; ref?: string}>;
+export interface ThemeValue {
+    value: string;
+    ref?: string;
+}
+
+export type ThemeModeValue = Partial<Record<ThemePreviewMode, ThemeValue>>;
+
+export type ThemePayload = Record<string, ThemeValue | ThemeModeValue>;
 
 const KEBAB_CASE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
