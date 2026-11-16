@@ -63,5 +63,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/gravity-ui/themes.git"
-  }
+  },
+  "license": "MIT"
 }
