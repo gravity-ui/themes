@@ -21,8 +21,7 @@ import {
     cleanSubmissionText as cleanText,
     validateSubmissionDraft,
 } from './draft';
-import {DEFAULT_FONT_FAMILIES} from './fonts';
-import {isBuiltInFontFamily} from './fonts';
+import {DEFAULT_FONT_FAMILIES, isBuiltInFontFamily} from './fonts';
 
 
 
