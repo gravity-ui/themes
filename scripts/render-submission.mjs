@@ -8,7 +8,9 @@ import sharp from 'sharp';
 import {readSubmissionInput} from './read-submission-input.mjs';
 
 const require = createRequire(import.meta.url);
+/** @type {typeof import('../lib/schema')} */
 const {validateThemeMetadata} = require('../dist/schema.js');
+/** @type {typeof import('../lib/validation')} */
 const {validateThemePayload} = require('../dist/validation.js');
 const {JOB_ID, THEME_HASH, RENDERER_REVISION, GITHUB_SHA, GITHUB_RUN_ID, USER_ID} = process.env;
 if (
@@ -35,10 +37,12 @@ if (hash !== THEME_HASH) {
 const browser = await chromium.launch({
     args: ['--font-render-hinting=none', '--force-color-profile=srgb', '--disable-lcd-text'],
 });
-const files = {},
-    hashes = {};
+/** @type {Record<import('../lib/schema').ThemePreviewMode, string>} */
+const files = {light: '', dark: ''};
+/** @type {Record<import('../lib/schema').ThemePreviewMode, string>} */
+const hashes = {light: '', dark: ''};
 try {
-    for (const mode of ['light', 'dark']) {
+    for (const mode of /** @type {const} */ (['light', 'dark'])) {
         const context = await browser.newContext({
             viewport: {width: 740, height: 375},
             deviceScaleFactor: 2,
@@ -53,7 +57,13 @@ try {
         await page.emulateMedia({colorScheme: mode, reducedMotion: 'reduce'});
         await page.goto('http://127.0.0.1:3010', {waitUntil: 'networkidle'});
         await page.waitForFunction(() => typeof window.renderTheme === 'function');
-        await page.evaluate((data) => window.renderTheme(data), {payload, mode});
+        await page.evaluate(
+            (data) => {
+                if (!window.renderTheme) throw new Error('Renderer is not ready');
+                window.renderTheme(data);
+            },
+            {payload, mode},
+        );
         await page.waitForFunction(
             () => document.documentElement.dataset.themePreviewReady === '1',
         );

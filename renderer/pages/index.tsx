@@ -3,21 +3,11 @@ import React from 'react';
 import {generateCSS, parseJSON} from '@gravity-ui/uikit-themer';
 
 import {normalizeImportedTheme} from '../../lib/normalize-imported';
-import type {ThemePayload, ThemePreviewMode} from '../../lib/schema';
+import type {ThemePayload} from '../../lib/schema';
 import {PreviewLayout} from '../components/PreviewLayout';
 import {TablePreview} from '../components/TablePreview';
 import {PREVIEW_LAYOUT_CLASS} from '../components/block';
-
-interface RenderThemeData {
-    payload: ThemePayload;
-    mode: ThemePreviewMode;
-}
-
-declare global {
-    interface Window {
-        renderTheme?: (data: RenderThemeData) => void;
-    }
-}
+import type {RenderThemeData} from '../render-theme';
 
 // The Themer parser ignores incomplete per-mode entries.
 const toParserPayload = (payload: ThemePayload): Parameters<typeof parseJSON>[0] => {

@@ -2,7 +2,9 @@ import {mkdir, readFile, readdir, writeFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
+/** @type {typeof import('../lib/schema')} */
 const {validateThemeMetadata} = require('../dist/schema.js');
+/** @type {typeof import('../lib/validation')} */
 const {validateThemePayload} = require('../dist/validation.js');
 const themes = [];
 const names = new Map();
@@ -24,8 +26,8 @@ for (const file of (await readdir('themes')).filter((name) => name.endsWith('.me
         const payload = validateThemePayload(
             JSON.parse(await readFile(`themes/${metadata.id}.theme.json`, 'utf8')),
         );
-        const previews = {};
-        for (const mode of ['light', 'dark'])
+        const previews = {light: '', dark: ''};
+        for (const mode of /** @type {const} */ (['light', 'dark']))
             previews[mode] =
                 'data:image/png;base64,' +
                 (await readFile(`previews/${metadata.id}-${mode}.png`)).toString('base64');
