@@ -30,9 +30,9 @@ export const users = [
 
 export const tableData = new Array(10).fill(0).map((_, index) => {
     return {
-        user: users[(index + 1) % 7],
-        project: projects[(index + 1) % 10],
+        user: users[(index + 1) % users.length],
+        project: projects[(index + 1) % projects.length],
         updated: '10.03.2023 19:37',
-        status: labels[(index + 1) % 4],
+        status: labels[(index + 1) % labels.length],
     };
 });
