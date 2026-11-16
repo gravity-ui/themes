@@ -7,9 +7,6 @@ import {
     SquareBars,
     SquareChartBar,
     Sun,
-    TextAlignCenter,
-    TextAlignJustify,
-    TextAlignLeft,
 } from '@gravity-ui/icons';
 import {ActionBar, AsideHeader, FooterItem} from '@gravity-ui/navigation';
 import {
@@ -21,7 +18,7 @@ import {
     Theme,
     ThemeProvider,
 } from '@gravity-ui/uikit';
-import React, {CSSProperties, Fragment, useState} from 'react';
+import React, {Fragment, useState} from 'react';
 
 
 import gravityUi from '../assets/gravity-ui.svg';
@@ -57,13 +54,9 @@ export const PreviewLayout = ({
     hideThemeToggle = false,
 }: PreviewLayoutProps) => {
     const [theme, setTheme] = useState<Theme>(initialTheme);
-    const [justify, setJustify] = useState<CSSProperties['justifyContent']>('flex-start');
+    const justify = 'flex-start';
     const [isCompact, setCompact] = useState<boolean>(true);
     const containerRef = React.useRef<HTMLDivElement>(null);
-
-    const onAlignmentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setJustify(event.target.value);
-    };
 
     const onThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setTheme(event.target.value as 'light' | 'dark');
@@ -84,29 +77,6 @@ export const PreviewLayout = ({
                             </Breadcrumbs>
                         </ActionBar.Group>
                         <ActionBar.Group pull="right">
-                            {/* Hide alignment in MVP */}
-                            <ActionBar.Item className={b('header-actions', {hidden: true})}>
-                                <SegmentedRadioGroup
-                                    name="alignment"
-                                    defaultValue="left"
-                                    value={justify}
-                                    onChange={onAlignmentChange}
-                                    options={[
-                                        {
-                                            value: 'flex-start',
-                                            content: <Icon data={TextAlignLeft} />,
-                                        },
-                                        {
-                                            value: 'center',
-                                            content: <Icon data={TextAlignCenter} />,
-                                        },
-                                        {
-                                            value: 'space-between',
-                                            content: <Icon data={TextAlignJustify} />,
-                                        },
-                                    ]}
-                                />
-                            </ActionBar.Item>
                             {!hideThemeToggle && (
                                 <ActionBar.Item className={b('header-actions')}>
                                     <SegmentedRadioGroup

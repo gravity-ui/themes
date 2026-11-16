@@ -57,10 +57,6 @@ $desktopSampleWidth: 1080px;
     }
 
     & &__header-actions {
-        &_hidden {
-            display: none;
-        }
-
         @media (max-width: map-get($gridBreakpoints, 'sm') - 1) {
             display: none;
         }
