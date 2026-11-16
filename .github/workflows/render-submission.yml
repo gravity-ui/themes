@@ -86,6 +86,10 @@ jobs:
             sleep 1
           done
           npm run render:submission
+      - name: Show renderer log on failure
+        if: failure()
+        run: |
+          if test -f renderer.log; then tail -n 100 renderer.log; fi
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: theme-job-${{ inputs.job_id }}
