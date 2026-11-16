@@ -35,7 +35,7 @@ export class SubmissionValidationError extends Error {
     }
 }
 
-// Same rule as the submit form uses to show the id.
+// Metadata fields accepted when preparing a theme submission.
 export interface ThemeMetaDraft {
     name: string;
     descriptionEn: string;

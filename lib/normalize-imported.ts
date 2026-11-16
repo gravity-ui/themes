@@ -13,8 +13,7 @@ import {
 } from '@gravity-ui/uikit-themer';
 import type {ThemePayload} from './schema';
 
-// Extracted from landing's normalizeImportedTheme import shim. Keep JSON refs
-// in the internal grammar understood by the same pinned themer version.
+// Keep JSON references in the grammar understood by the pinned Themer version.
 const normalizeRef = (ref: unknown): string | undefined => {
     if (typeof ref !== 'string' || !ref) return undefined;
     if (isPrivateColorCssVariable(ref)) {

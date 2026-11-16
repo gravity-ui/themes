@@ -22,10 +22,7 @@ export interface ThemeAuthor {
     url?: string;
 }
 
-/**
- * Theme metadata — static-imported eagerly into the registry. Small enough to
- * load all entries up front; drives the gallery drawer/modal grid.
- */
+/** Metadata shipped with each public catalog entry. */
 export interface ThemeMetadata {
     id: string;
     name: string;
@@ -35,10 +32,7 @@ export interface ThemeMetadata {
     brandColor: string;
 }
 
-/**
- * Raw output of `generateJSON` from `@gravity-ui/uikit-themer` — a flat dict of
- * CSS-variable-like keys (`--g-*`). Loaded lazily via dynamic import on apply.
- */
+/** A common CSS-variable value or a light/dark pair from the Themer JSON format. */
 export interface ThemeValue {
     value: string;
     ref?: string;
