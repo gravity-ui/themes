@@ -15,7 +15,7 @@ export type SubmissionFieldErrors = Partial<
     Record<keyof SubmissionDraft, 'required' | 'too-long' | 'invalid-name' | 'invalid-tags'>
 >;
 
-// The server and form must validate the same normalized text.
+// Replaces control characters with spaces and trims submission text.
 export const cleanSubmissionText = (value: unknown) =>
     // eslint-disable-next-line no-control-regex
     typeof value === 'string' ? value.replace(/[\u0000-\u001f\u007f]/g, ' ').trim() : '';

@@ -98,8 +98,8 @@ const MAX_PAYLOAD_KEYS = 2000;
 const MAX_VALUE_LENGTH = 500;
 const PAYLOAD_KEY_RE = /^--[a-z][a-z0-9-]*$/;
 
-// Values become CSS declarations in the isolated CI renderer and gallery,
-// so each key accepts only the syntax its kind needs: no
+// Payload values must be safe CSS declarations. Each key accepts only
+// the syntax its kind needs: no
 // `url()`, `image-set()`, `@import` or any other function that fetches.
 const COLOR_KEY_RE = /^--(?:g|gil)-color-/;
 const FONT_FAMILY_KEY_PREFIX = '--g-font-family-';
@@ -195,8 +195,8 @@ function readPayloadValue(key: string, value: unknown): PayloadValue | null {
     return isValidLeaf(key, leaf) ? leaf : null;
 }
 
-// Checks the `generateJSON` output sent by the browser and rebuilds it from
-// known fields only. An entry is either `{value, ref?}` or a per-mode
+// Validates Themer `generateJSON` output and rebuilds it from known fields
+// only. An entry is either `{value, ref?}` or a per-mode
 // `{light?, dark?}` pair of those; the key order of the input is kept.
 export function validateThemePayload(value: unknown): ThemePayload {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {

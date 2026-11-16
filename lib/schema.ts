@@ -81,7 +81,7 @@ const CYRILLIC_TO_LATIN: Record<string, string> = {
     я: 'ya',
 };
 
-// Kebab-case gallery id of a theme name, shared by the submit form and the server.
+// Converts a theme name to a kebab-case catalog id.
 export function toThemeId(name: string) {
     return name
         .toLowerCase()
