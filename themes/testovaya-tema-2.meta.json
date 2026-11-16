@@ -1,0 +1,15 @@
+{
+    "$schema": "./meta.schema.json",
+    "id": "testovaya-tema-2",
+    "name": "тестовая тема 2",
+    "author": {
+        "name": "Aleksandr Iakimov",
+        "url": "https://github.com/Sociopacific"
+    },
+    "description": {
+        "en": "тестовая тема 2",
+        "ru": "тестовая тема 2"
+    },
+    "tags": [],
+    "brandColor": "#CBFF5C"
+}
