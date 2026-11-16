@@ -57,12 +57,7 @@ export const PreviewLayout = ({
     initialTheme = 'dark',
     hideThemeToggle = false,
 }: PreviewLayoutProps) => {
-    const forcedMode: Theme | undefined = undefined;
-    const contextHideToggle = false;
-    const [localTheme, setLocalTheme] = useState<Theme>(initialTheme);
-    const theme: Theme = forcedMode ?? localTheme;
-    const setTheme = setLocalTheme;
-    const isToggleHidden = hideThemeToggle || contextHideToggle;
+    const [theme, setTheme] = useState<Theme>(initialTheme);
     const [justify, setJustify] = useState<CSSProperties['justifyContent']>('flex-start');
     const [isCompact, setCompact] = useState<boolean>(true);
     const containerRef = React.useRef<HTMLDivElement>(null);
@@ -113,7 +108,7 @@ export const PreviewLayout = ({
                                     ]}
                                 />
                             </ActionBar.Item>
-                            {!isToggleHidden && (
+                            {!hideThemeToggle && (
                                 <ActionBar.Item className={b('header-actions')}>
                                     <SegmentedRadioGroup
                                         name="theme"
