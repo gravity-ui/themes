@@ -16,7 +16,6 @@
     "render:start": "next start renderer -p 3010",
     "render:submission": "node scripts/render-submission.mjs",
     "test": "npm run typecheck && npm run lint && npm run build",
-    "prepare": "npm run build",
     "lint:js": "eslint . --max-warnings 0",
     "lint:styles": "stylelint \"renderer/**/*.scss\"",
     "lint:prettier": "prettier --check .",
