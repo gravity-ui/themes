@@ -16,12 +16,13 @@
     "render:build": "next build renderer",
     "render:start": "next start renderer -p 3010",
     "render:submission": "node scripts/render-submission.mjs",
-    "test": "exit 0",
+    "test": "npm run typecheck && npm run lint && npm run build",
     "prepare": "npm run build",
     "lint:js": "eslint . --max-warnings 0",
     "lint:styles": "stylelint \"renderer/**/*.scss\"",
     "lint:prettier": "prettier --check .",
-    "lint": "npm run lint:js && npm run lint:styles && npm run lint:prettier"
+    "lint": "npm run lint:js && npm run lint:styles && npm run lint:prettier",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p renderer && tsc -p tsconfig.scripts.json"
   },
   "dependencies": {
     "@gravity-ui/uikit": "7.47.1",
