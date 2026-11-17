@@ -4,6 +4,8 @@ import {createRequire} from 'node:module';
 import path from 'node:path';
 
 const require = createRequire(import.meta.url);
+/** @type {typeof import('../lib/files')} */
+const {formatThemeMetadataFile, formatThemePayloadFile} = require('../dist/files.js');
 /** @type {typeof import('../lib/index')} */
 const {
     CATALOG_FORMAT_VERSION,
@@ -42,6 +44,22 @@ const addJson = (file, value) => {
     jsonFiles.set(file, JSON.stringify(value));
 };
 
+/**
+ * Rejects a source file whose text is not the canonical output for its content.
+ * @param {string} subject
+ * @param {string} text
+ * @param {string} expected
+ * @param {string} formatter
+ */
+const assertCanonicalFile = (subject, text, expected, formatter) => {
+    if (text !== expected) {
+        throw new Error(
+            `${subject} is not in the canonical format; write it with ${formatter} ` +
+                'from @gravity-ui/themes/files: 4-space JSON, "$schema" first in metadata, trailing newline',
+        );
+    }
+};
+
 const names = new Map();
 // Listings follow the order of ids; sorting file names would put `a-b.meta.json` before `a.meta.json`.
 const themeIds = (await readdir('themes'))
@@ -51,10 +69,17 @@ const themeIds = (await readdir('themes'))
 for (const expectedId of themeIds) {
     const file = `${expectedId}.meta.json`;
     try {
-        const metadata = JSON.parse(await readFile(`themes/${file}`, 'utf8'));
+        const metadataText = await readFile(`themes/${file}`, 'utf8');
+        const metadata = JSON.parse(metadataText);
         // The editor hint is not part of the published metadata.
         delete metadata.$schema;
         validateThemeMetadata(metadata);
+        assertCanonicalFile(
+            'metadata file',
+            metadataText,
+            formatThemeMetadataFile(metadata),
+            'formatThemeMetadataFile',
+        );
         if (metadata.id !== expectedId) {
             throw new Error(`id "${metadata.id}" must match file name "${expectedId}"`);
         }
@@ -65,9 +90,16 @@ for (const expectedId of themeIds) {
             );
         }
         names.set(name, file);
-        const payload = validateThemePayload(
-            JSON.parse(await readFile(`themes/${metadata.id}.theme.json`, 'utf8')),
+        const payloadFile = `themes/${metadata.id}.theme.json`;
+        const payloadText = await readFile(payloadFile, 'utf8');
+        const sourcePayload = JSON.parse(payloadText);
+        assertCanonicalFile(
+            payloadFile,
+            payloadText,
+            formatThemePayloadFile(sourcePayload),
+            'formatThemePayloadFile',
         );
+        const payload = validateThemePayload(sourcePayload);
         addJson(getThemeMetadataPath(metadata.id), metadata);
         addJson(getThemePayloadPath(metadata.id), payload);
         for (const mode of MODES) {

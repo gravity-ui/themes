@@ -92,6 +92,10 @@
       "types": "./dist/fonts.d.ts",
       "default": "./dist/fonts.js"
     },
+    "./files": {
+      "types": "./dist/files.d.ts",
+      "default": "./dist/files.js"
+    },
     "./catalog/*": "./dist/catalog/*"
   }
 }

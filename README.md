@@ -48,15 +48,16 @@ A payload entry is either `{value: string, ref?: string}` or a per-mode object w
 
 ### Public entry points
 
-| Import                                  | Contents                                                                       |
-| --------------------------------------- | ------------------------------------------------------------------------------ |
-| `@gravity-ui/themes`                    | Catalog file paths, page size and file types                                   |
-| `@gravity-ui/themes/schema`             | Metadata/payload types, tags, id generation and metadata validation            |
-| `@gravity-ui/themes/validation`         | `buildThemeMetadata`, `validateThemePayload` and validation errors             |
-| `@gravity-ui/themes/normalize-imported` | `normalizeImportedTheme`, which updates a parsed theme in place and returns it |
-| `@gravity-ui/themes/draft`              | Submission draft types, text cleanup and field validation                      |
-| `@gravity-ui/themes/fonts`              | `DEFAULT_FONT_FAMILIES`, `BUILT_IN_FONTS` and `isBuiltInFontFamily`            |
-| `@gravity-ui/themes/catalog/*`          | Catalog files described above                                                  |
+| Import                                  | Contents                                                                                       |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `@gravity-ui/themes`                    | Catalog file paths, page size and file types                                                   |
+| `@gravity-ui/themes/schema`             | Metadata/payload types, tags, id generation and metadata validation                            |
+| `@gravity-ui/themes/validation`         | `buildThemeMetadata`, `validateThemePayload` and validation errors                             |
+| `@gravity-ui/themes/normalize-imported` | `normalizeImportedTheme`, which updates a parsed theme in place and returns it                 |
+| `@gravity-ui/themes/draft`              | Submission draft types, text cleanup and field validation                                      |
+| `@gravity-ui/themes/fonts`              | `DEFAULT_FONT_FAMILIES`, `BUILT_IN_FONTS` and `isBuiltInFontFamily`                            |
+| `@gravity-ui/themes/files`              | `formatThemeMetadataFile` and `formatThemePayloadFile`, the canonical text of `themes/*` files |
+| `@gravity-ui/themes/catalog/*`          | Catalog files described above                                                                  |
 
 Use these entry points instead of importing implementation files from `dist/`.
 
@@ -77,7 +78,7 @@ npm run render:build
 ### Add a theme
 
 1. Export JSON from [Themer](https://gravity-ui.com/themer).
-2. Choose a unique theme name. Its id is derived from the name: lowercase, Cyrillic transliterated to Latin, every other run of non-alphanumeric characters replaced with `-` (`toThemeId` in `@gravity-ui/themes/schema`; `Retro Wave Radio` becomes `retro-wave-radio`). Add `themes/<id>.theme.json` and `themes/<id>.meta.json`. The metadata `id` must equal the file name without `.meta.json`.
+2. Choose a unique theme name. Its id is derived from the name: lowercase, Cyrillic transliterated to Latin, every other run of non-alphanumeric characters replaced with `-` (`toThemeId` in `@gravity-ui/themes/schema`; `Retro Wave Radio` becomes `retro-wave-radio`). Add `themes/<id>.theme.json` and `themes/<id>.meta.json`. The metadata `id` must equal the file name without `.meta.json`. Both files must be byte-equal to the output of `formatThemeMetadataFile` and `formatThemePayloadFile` from `@gravity-ui/themes/files` for their parsed content: 4-space JSON with a trailing newline, metadata starting with `"$schema": "./meta.schema.json"`. The catalog build rejects any other formatting, and Prettier does not touch these files.
 3. Fill metadata according to [`themes/meta.schema.json`](themes/meta.schema.json): name, author, English/Russian descriptions, tags and `#RRGGBB` brand color. Names must be unique after trimming and case normalization, and their ids must be unique too.
 4. Add `previews/<id>-light.png` and `previews/<id>-dark.png`, both 740 by 500 pixels. Generate them with the pinned renderer below; do not substitute images from an unrelated renderer revision.
 5. Run `npm test`, `npm run render:build` and `npm pack --dry-run`. Submit a pull request with a Conventional Commit title, such as `feat(themes): add a new theme`.
