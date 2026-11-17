@@ -43,13 +43,18 @@ const addJson = (file, value) => {
 };
 
 const names = new Map();
-for (const file of (await readdir('themes')).filter((name) => name.endsWith('.meta.json')).sort()) {
+// Listings follow the order of ids; sorting file names would put `a-b.meta.json` before `a.meta.json`.
+const themeIds = (await readdir('themes'))
+    .filter((name) => name.endsWith('.meta.json'))
+    .map((name) => name.slice(0, -'.meta.json'.length))
+    .sort();
+for (const expectedId of themeIds) {
+    const file = `${expectedId}.meta.json`;
     try {
         const metadata = JSON.parse(await readFile(`themes/${file}`, 'utf8'));
         // The editor hint is not part of the published metadata.
         delete metadata.$schema;
         validateThemeMetadata(metadata);
-        const expectedId = file.slice(0, -'.meta.json'.length);
         if (metadata.id !== expectedId) {
             throw new Error(`id "${metadata.id}" must match file name "${expectedId}"`);
         }
