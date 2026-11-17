@@ -13,17 +13,18 @@ const PREVIEW_WIDTH = 555;
 const PREVIEW_HEIGHT = 375;
 const SAMPLE_WIDTH = 740;
 
-// Scope generated CSS to the isolated preview.
+// Scope generated CSS to the isolated preview and to the capture root, whose
+// background shows in the rounded corners of the preview layout.
 const scopeCss = (css: string, name: string) =>
     css
-        .replace('.g-root {', `.g-root.${name}, .${name} .g-root {`)
+        .replace('.g-root {', `.g-root.${name}, .${name} .g-root, #capture-root.g-root {`)
         .replace(
             '.g-root_theme_dark {',
-            `.g-root_theme_dark.${name}_theme_dark, .${name}_theme_dark .g-root_theme_dark {`,
+            `.g-root_theme_dark.${name}_theme_dark, .${name}_theme_dark .g-root_theme_dark, #capture-root.g-root_theme_dark {`,
         )
         .replace(
             '.g-root_theme_light {',
-            `.g-root_theme_light.${name}_theme_light, .${name}_theme_light .g-root_theme_light {`,
+            `.g-root_theme_light.${name}_theme_light, .${name}_theme_light .g-root_theme_light, #capture-root.g-root_theme_light {`,
         );
 export default function Capture() {
     const [data, setData] = React.useState<RenderThemeData | null>(null);
