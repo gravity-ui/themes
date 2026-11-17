@@ -20,7 +20,7 @@ export const projects = [
     'DSLL - second screen with zoom',
 ];
 
-export const users = [
+const users = [
     'John Smith',
     'David Jones',
     'Michael Johnson',
