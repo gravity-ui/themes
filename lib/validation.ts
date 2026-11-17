@@ -111,8 +111,6 @@ const FONT_NAME = `(?:'[\\w -]+'|"[\\w -]+"|[\\w-]+)`;
 const FONT_FAMILY_VALUE_RE = new RegExp(`^${FONT_NAME}(?:\\s*,\\s*${FONT_NAME})*$`);
 const BUILT_IN_FONT_REFS = DEFAULT_FONT_FAMILIES.map((type) => `${FONT_FAMILY_KEY_PREFIX}${type}`);
 
-type PayloadValue = ThemeValue;
-
 const isColorValue = (value: string) =>
     value === '' ||
     COLOR_VAR_RE.test(value) ||
@@ -130,7 +128,7 @@ function isBuiltInFontStack(value: string, fontType: string) {
     return isBuiltInFontFamily(fontType, mainFont);
 }
 
-function isValidLeaf(key: string, {value, ref}: PayloadValue) {
+function isValidLeaf(key: string, {value, ref}: ThemeValue) {
     if (ref !== undefined && !PAYLOAD_KEY_RE.test(ref)) {
         return false;
     }
@@ -162,7 +160,7 @@ function colorReference(value: string): string | undefined {
     return utilityColor ? createUtilityColorCssVariable(utilityColor) : undefined;
 }
 
-function readPayloadValue(key: string, value: unknown): PayloadValue | null {
+function readThemeValue(key: string, value: unknown): ThemeValue | null {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
         return null;
     }
@@ -181,7 +179,7 @@ function readPayloadValue(key: string, value: unknown): PayloadValue | null {
     if (internalRef && ref !== undefined && ref !== internalRef) {
         return null;
     }
-    const leaf: PayloadValue = {value: itemValue};
+    const leaf: ThemeValue = {value: itemValue};
     if (internalRef) {
         leaf.value = `var(${internalRef})`;
         leaf.ref = internalRef;
@@ -209,7 +207,7 @@ export function validateThemePayload(value: unknown): ThemePayload {
         }
         const record = item as Record<string, unknown>;
         if ('value' in record) {
-            const leaf = readPayloadValue(key, record);
+            const leaf = readThemeValue(key, record);
             if (!leaf) {
                 throw new SubmissionValidationError(`invalid value of ${key}`);
             }
@@ -225,7 +223,7 @@ export function validateThemePayload(value: unknown): ThemePayload {
             if (modeValue === undefined) {
                 continue;
             }
-            const leaf = readPayloadValue(key, modeValue);
+            const leaf = readThemeValue(key, modeValue);
             if (!leaf) {
                 throw new SubmissionValidationError(`invalid ${mode} value of ${key}`);
             }
@@ -265,7 +263,7 @@ function normalizeColorReferences(payload: ThemePayload): ThemePayload {
     const normalized = {...payload};
     for (const key of Object.keys(payload).filter((name) => COLOR_KEY_RE.test(name))) {
         const entry = payload[key];
-        const normalize = (leaf: PayloadValue, mode: ThemePreviewMode): PayloadValue =>
+        const normalize = (leaf: ThemeValue, mode: ThemePreviewMode): ThemeValue =>
             COLOR_VAR_RE.test(leaf.value)
                 ? {value: resolve(key, mode, new Set()), ref: leaf.value.slice(4, -1)}
                 : leaf;
@@ -277,7 +275,7 @@ function normalizeColorReferences(payload: ThemePayload): ThemePayload {
                 };
             }
         } else {
-            const themed: Partial<Record<ThemePreviewMode, PayloadValue>> = {};
+            const themed: Partial<Record<ThemePreviewMode, ThemeValue>> = {};
             for (const mode of ['light', 'dark'] as const) {
                 const leaf = entry[mode];
                 if (leaf) {
