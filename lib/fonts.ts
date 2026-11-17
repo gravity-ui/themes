@@ -4,5 +4,9 @@ export const BUILT_IN_FONTS: Readonly<Record<string, readonly string[]>> = {
     monospace: ['Roboto Mono', 'Ubuntu Mono', 'IBM Plex Mono'],
 };
 export function isBuiltInFontFamily(type: string, name: string) {
-    return Boolean(BUILT_IN_FONTS[type]?.includes(name));
+    // Own keys only: `toString` or `__proto__` must not resolve to Object.prototype members.
+    return (
+        Object.prototype.hasOwnProperty.call(BUILT_IN_FONTS, type) &&
+        BUILT_IN_FONTS[type].includes(name)
+    );
 }
