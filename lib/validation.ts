@@ -240,8 +240,27 @@ export function validateThemePayload(value: unknown): ThemePayload {
     return normalizeColorReferences(payload);
 }
 
+// Themer chains color references two or three links deep; longer chains are
+// rejected so that resolution stays cheap for any submitted payload.
+const MAX_COLOR_REFERENCE_DEPTH = 8;
+
+interface ResolvedColor {
+    value: string;
+    depth: number;
+}
+
 function normalizeColorReferences(payload: ThemePayload): ThemePayload {
-    const resolve = (key: string, mode: ThemePreviewMode, visiting: Set<string>): string => {
+    // Each key is resolved once per mode, so the whole payload takes linear time.
+    const resolved: Record<ThemePreviewMode, Map<string, ResolvedColor>> = {
+        light: new Map(),
+        dark: new Map(),
+    };
+    const visiting = new Set<string>();
+    const resolveColor = (key: string, mode: ThemePreviewMode): ResolvedColor => {
+        const cached = resolved[mode].get(key);
+        if (cached) {
+            return cached;
+        }
         if (visiting.has(key)) {
             throw new SubmissionValidationError(`circular color reference ${key}`);
         }
@@ -251,13 +270,22 @@ function normalizeColorReferences(payload: ThemePayload): ThemePayload {
             throw new SubmissionValidationError(`missing color reference ${key}`);
         }
         const target = COLOR_VAR_RE.test(leaf.value) ? leaf.value.slice(4, -1) : undefined;
-        if (!target) {
-            return leaf.value;
+        let result: ResolvedColor = {value: leaf.value, depth: 0};
+        if (target) {
+            visiting.add(key);
+            const targetColor = resolveColor(target, mode);
+            visiting.delete(key);
+            if (!targetColor.value) {
+                throw new SubmissionValidationError(`empty color reference ${target}`);
+            }
+            result = {value: targetColor.value, depth: targetColor.depth + 1};
+            if (result.depth > MAX_COLOR_REFERENCE_DEPTH) {
+                throw new SubmissionValidationError(
+                    `color reference chain of ${key} is longer than ${MAX_COLOR_REFERENCE_DEPTH}`,
+                );
+            }
         }
-        const result = resolve(target, mode, new Set([...visiting, key]));
-        if (!result) {
-            throw new SubmissionValidationError(`empty color reference ${target}`);
-        }
+        resolved[mode].set(key, result);
         return result;
     };
     const normalized = {...payload};
@@ -265,7 +293,7 @@ function normalizeColorReferences(payload: ThemePayload): ThemePayload {
         const entry = payload[key];
         const normalize = (leaf: ThemeValue, mode: ThemePreviewMode): ThemeValue =>
             COLOR_VAR_RE.test(leaf.value)
-                ? {value: resolve(key, mode, new Set()), ref: leaf.value.slice(4, -1)}
+                ? {value: resolveColor(key, mode).value, ref: leaf.value.slice(4, -1)}
                 : leaf;
         if ('value' in entry) {
             if (COLOR_VAR_RE.test(entry.value)) {
