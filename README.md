@@ -37,14 +37,14 @@ const payload: ThemePayload = await (
   await fetch(`${base}/${getThemePayloadPath('coffee')}`)
 ).json();
 const color = payload['--g-color-base-brand'];
-const lightBrand = 'value' in color ? color.value : color.light?.value;
+const lightBrand = 'value' in color ? color.value : color.light.value;
 const preview = `${base}/${getThemePreviewPath('coffee', 'light')}`;
 // Use preview as an image src and lightBrand as the brand color.
 ```
 
 TypeScript consumers should use `moduleResolution: "node16"`, `"nodenext"` or `"bundler"` to resolve the exported subpaths.
 
-A payload entry is either `{value: string, ref?: string}` or a per-mode object with `light` and/or `dark` leaves. Narrow with `'value' in entry` before reading a common value. The pinned Themer parser expects both modes for per-mode entries; when accepting arbitrary submitted payloads, pass common entries and complete mode pairs to `parseJSON` (as the renderer does). The bundled catalog has complete pairs.
+A payload entry is either `{value: string, ref?: string}` or a per-mode object with both `light` and `dark` leaves. Narrow with `'value' in entry` before reading a common value. `validateThemePayload` rejects incomplete mode pairs, so a validated payload can be passed to the pinned Themer `parseJSON` as is.
 
 ### Public entry points
 

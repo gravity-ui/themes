@@ -3,7 +3,6 @@ import React from 'react';
 import {generateCSS, parseJSON} from '@gravity-ui/uikit-themer';
 
 import {normalizeImportedTheme} from '../../lib/normalize-imported';
-import type {ThemePayload} from '../../lib/schema';
 import {PreviewLayout} from '../components/PreviewLayout';
 import {TablePreview} from '../components/TablePreview';
 import {PREVIEW_LAYOUT_CLASS} from '../components/block';
@@ -13,19 +12,6 @@ import type {RenderThemeData} from '../render-theme';
 const PREVIEW_WIDTH = 555;
 const PREVIEW_HEIGHT = 375;
 const SAMPLE_WIDTH = 740;
-
-// The Themer parser ignores incomplete per-mode entries.
-const toParserPayload = (payload: ThemePayload): Parameters<typeof parseJSON>[0] => {
-    const result: Parameters<typeof parseJSON>[0] = {};
-    for (const [key, entry] of Object.entries(payload)) {
-        if ('value' in entry) {
-            result[key] = entry;
-        } else if (entry.light && entry.dark) {
-            result[key] = {light: entry.light, dark: entry.dark};
-        }
-    }
-    return result;
-};
 
 // Scope generated CSS to the isolated preview.
 const scopeCss = (css: string, name: string) =>
@@ -63,7 +49,7 @@ export default function Capture() {
         return null;
     }
     const css = generateCSS({
-        theme: normalizeImportedTheme(parseJSON(toParserPayload(data.payload)), data.payload),
+        theme: normalizeImportedTheme(parseJSON(data.payload), data.payload),
         ignoreDefaultValues: false,
         forPreview: true,
         libraries: ['illustrations'],

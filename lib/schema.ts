@@ -40,7 +40,7 @@ export interface ThemeValue {
     ref?: string;
 }
 
-export type ThemeModeValue = Partial<Record<ThemePreviewMode, ThemeValue>>;
+export type ThemeModeValue = Record<ThemePreviewMode, ThemeValue>;
 
 /** CSS-variable values stored as common values or light/dark pairs in the Themer JSON format. */
 export type ThemePayload = Record<string, ThemeValue | ThemeModeValue>;

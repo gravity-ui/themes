@@ -189,9 +189,29 @@ function readThemeValue(key: string, value: unknown): ThemeValue | null {
     return isValidLeaf(key, leaf) ? leaf : null;
 }
 
+function readThemeModeValue(key: string, record: Record<string, unknown>): ThemeModeValue {
+    const {light, dark, ...rest} = record;
+    if (Object.keys(rest).length) {
+        throw new SubmissionValidationError(`invalid value of ${key}`);
+    }
+    // The Themer parser reads a per-mode entry only when both modes are set.
+    if (light === undefined || dark === undefined) {
+        throw new SubmissionValidationError(`${key} needs both light and dark values`);
+    }
+    const lightLeaf = readThemeValue(key, light);
+    if (!lightLeaf) {
+        throw new SubmissionValidationError(`invalid light value of ${key}`);
+    }
+    const darkLeaf = readThemeValue(key, dark);
+    if (!darkLeaf) {
+        throw new SubmissionValidationError(`invalid dark value of ${key}`);
+    }
+    return {light: lightLeaf, dark: darkLeaf};
+}
+
 // Validates Themer `generateJSON` output and rebuilds it from known fields
 // only. An entry is either `{value, ref?}` or a per-mode
-// `{light?, dark?}` pair of those; the key order of the input is kept.
+// `{light, dark}` pair of those; the key order of the input is kept.
 export function validateThemePayload(value: unknown): ThemePayload {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
         throw new SubmissionValidationError('theme must be an object');
@@ -214,30 +234,16 @@ export function validateThemePayload(value: unknown): ThemePayload {
             payload[key] = leaf;
             continue;
         }
-        const {light, dark, ...rest} = record;
-        const themed: ThemeModeValue = {};
-        for (const [mode, modeValue] of [
-            ['light', light],
-            ['dark', dark],
-        ] as const) {
-            if (modeValue === undefined) {
-                continue;
-            }
-            const leaf = readThemeValue(key, modeValue);
-            if (!leaf) {
-                throw new SubmissionValidationError(`invalid ${mode} value of ${key}`);
-            }
-            themed[mode] = leaf;
-        }
-        if (Object.keys(rest).length || !Object.keys(themed).length) {
-            throw new SubmissionValidationError(`invalid value of ${key}`);
-        }
-        payload[key] = themed;
+        payload[key] = readThemeModeValue(key, record);
     }
-    if (!payload['--g-color-base-brand']) {
+    const normalized = normalizeColorReferences(payload);
+    const brand = normalized['--g-color-base-brand'];
+    const brandValues =
+        brand && ('value' in brand ? [brand.value] : [brand.light.value, brand.dark.value]);
+    if (!brandValues || brandValues.some((brandValue) => !brandValue)) {
         throw new SubmissionValidationError('theme has no brand color');
     }
-    return normalizeColorReferences(payload);
+    return normalized;
 }
 
 // Themer chains color references two or three links deep; longer chains are
@@ -303,14 +309,10 @@ function normalizeColorReferences(payload: ThemePayload): ThemePayload {
                 };
             }
         } else {
-            const themed: Partial<Record<ThemePreviewMode, ThemeValue>> = {};
-            for (const mode of ['light', 'dark'] as const) {
-                const leaf = entry[mode];
-                if (leaf) {
-                    themed[mode] = normalize(leaf, mode);
-                }
-            }
-            normalized[key] = themed;
+            normalized[key] = {
+                light: normalize(entry.light, 'light'),
+                dark: normalize(entry.dark, 'dark'),
+            };
         }
     }
     return normalized;
