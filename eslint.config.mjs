@@ -10,7 +10,6 @@ export default defineConfig([
     ...clientConfig,
     ...importOrderConfig,
     ...prettierConfig,
-    {rules: {complexity: 'off'}},
     {
         files: ['**/*.js', '**/*.mjs'],
         languageOptions: {globals: globals.node},

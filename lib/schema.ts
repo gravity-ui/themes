@@ -98,6 +98,45 @@ export class ThemeMetadataValidationError extends Error {
     }
 }
 
+function validateAuthor(id: string, value: unknown) {
+    if (!value || typeof value !== 'object') {
+        throw new ThemeMetadataValidationError(`[${id}] author must be an object`);
+    }
+    const author = value as Record<string, unknown>;
+    if (typeof author.name !== 'string' || !author.name.trim()) {
+        throw new ThemeMetadataValidationError(`[${id}] author.name must be a non-empty string`);
+    }
+    if (author.url !== undefined && typeof author.url !== 'string') {
+        throw new ThemeMetadataValidationError(`[${id}] author.url must be a string when present`);
+    }
+}
+
+function validateDescription(id: string, value: unknown) {
+    if (!value || typeof value !== 'object') {
+        throw new ThemeMetadataValidationError(`[${id}] description must be an object`);
+    }
+    const description = value as Record<string, unknown>;
+    if (typeof description.en !== 'string' || !description.en.trim()) {
+        throw new ThemeMetadataValidationError(`[${id}] description.en must be a non-empty string`);
+    }
+    if (typeof description.ru !== 'string' || !description.ru.trim()) {
+        throw new ThemeMetadataValidationError(`[${id}] description.ru must be a non-empty string`);
+    }
+}
+
+function validateTags(id: string, value: unknown) {
+    if (!Array.isArray(value)) {
+        throw new ThemeMetadataValidationError(`[${id}] tags must be an array`);
+    }
+    for (const tag of value) {
+        if (!THEME_TAGS.includes(tag as ThemeTag)) {
+            throw new ThemeMetadataValidationError(
+                `[${id}] unknown tag "${String(tag)}", allowed: ${THEME_TAGS.join(', ')}`,
+            );
+        }
+    }
+}
+
 export function validateThemeMetadata(value: unknown): asserts value is ThemeMetadata {
     if (!value || typeof value !== 'object') {
         throw new ThemeMetadataValidationError('value is not an object');
@@ -113,38 +152,9 @@ export function validateThemeMetadata(value: unknown): asserts value is ThemeMet
         throw new ThemeMetadataValidationError(`[${id}] name must be a non-empty string`);
     }
 
-    if (!v.author || typeof v.author !== 'object') {
-        throw new ThemeMetadataValidationError(`[${id}] author must be an object`);
-    }
-    const author = v.author as Record<string, unknown>;
-    if (typeof author.name !== 'string' || !author.name.trim()) {
-        throw new ThemeMetadataValidationError(`[${id}] author.name must be a non-empty string`);
-    }
-    if (author.url !== undefined && typeof author.url !== 'string') {
-        throw new ThemeMetadataValidationError(`[${id}] author.url must be a string when present`);
-    }
-
-    if (!v.description || typeof v.description !== 'object') {
-        throw new ThemeMetadataValidationError(`[${id}] description must be an object`);
-    }
-    const description = v.description as Record<string, unknown>;
-    if (typeof description.en !== 'string' || !description.en.trim()) {
-        throw new ThemeMetadataValidationError(`[${id}] description.en must be a non-empty string`);
-    }
-    if (typeof description.ru !== 'string' || !description.ru.trim()) {
-        throw new ThemeMetadataValidationError(`[${id}] description.ru must be a non-empty string`);
-    }
-
-    if (!Array.isArray(v.tags)) {
-        throw new ThemeMetadataValidationError(`[${id}] tags must be an array`);
-    }
-    for (const tag of v.tags) {
-        if (!THEME_TAGS.includes(tag as ThemeTag)) {
-            throw new ThemeMetadataValidationError(
-                `[${id}] unknown tag "${String(tag)}", allowed: ${THEME_TAGS.join(', ')}`,
-            );
-        }
-    }
+    validateAuthor(id, v.author);
+    validateDescription(id, v.description);
+    validateTags(id, v.tags);
 
     if (typeof v.brandColor !== 'string' || !/^#[0-9A-Fa-f]{6}$/.test(v.brandColor)) {
         throw new ThemeMetadataValidationError(`[${id}] brandColor must be a #RRGGBB hex string`);
