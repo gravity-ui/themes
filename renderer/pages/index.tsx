@@ -9,6 +9,11 @@ import {TablePreview} from '../components/TablePreview';
 import {PREVIEW_LAYOUT_CLASS} from '../components/block';
 import type {RenderThemeData} from '../render-theme';
 
+// A 555x375 card frame over the Table sample rendered at its natural ~740px width.
+const PREVIEW_WIDTH = 555;
+const PREVIEW_HEIGHT = 375;
+const SAMPLE_WIDTH = 740;
+
 // The Themer parser ignores incomplete per-mode entries.
 const toParserPayload = (payload: ThemePayload): Parameters<typeof parseJSON>[0] => {
     const result: Parameters<typeof parseJSON>[0] = {};
@@ -68,14 +73,14 @@ export default function Capture() {
             id="capture-root"
             className={`g-root g-root_theme_${data.mode}`}
             style={{
-                width: 555,
-                height: 375,
+                width: PREVIEW_WIDTH,
+                height: PREVIEW_HEIGHT,
                 overflow: 'hidden',
                 background: 'var(--g-color-base-background)',
             }}
         >
             <style>{scopeCss(css, PREVIEW_LAYOUT_CLASS)}</style>
-            <div style={{width: 740}}>
+            <div style={{width: SAMPLE_WIDTH}}>
                 <PreviewLayout id="table" breadCrumbsItems={['Table']} initialTheme={data.mode}>
                     {(props) => <TablePreview {...props} />}
                 </PreviewLayout>

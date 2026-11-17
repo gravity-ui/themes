@@ -12,6 +12,11 @@ const require = createRequire(import.meta.url);
 const {validateThemeMetadata} = require('../dist/schema.js');
 /** @type {typeof import('../lib/validation')} */
 const {validateThemePayload} = require('../dist/validation.js');
+// The viewport fits the Table sample at its natural width; the captured
+// 555x375 card frame is stored as a 740x500 PNG.
+const VIEWPORT = {width: 740, height: 375};
+const PNG_WIDTH = 740;
+const PNG_HEIGHT = 500;
 const {JOB_ID, THEME_HASH, RENDERER_REVISION, GITHUB_SHA, GITHUB_RUN_ID, USER_ID} = process.env;
 if (
     !JOB_ID ||
@@ -45,7 +50,7 @@ const hashes = {light: '', dark: ''};
 try {
     for (const mode of /** @type {const} */ (['light', 'dark'])) {
         const context = await browser.newContext({
-            viewport: {width: 740, height: 375},
+            viewport: VIEWPORT,
             deviceScaleFactor: 2,
         });
         // Theme values are validated; also block any renderer-initiated external network access.
@@ -72,7 +77,7 @@ try {
         );
         const raw = await page.locator('#capture-root').screenshot({type: 'png'});
         const png = await sharp(raw)
-            .resize(740, 500, {fit: 'cover', position: 'left top', kernel: 'lanczos3'})
+            .resize(PNG_WIDTH, PNG_HEIGHT, {fit: 'cover', position: 'left top', kernel: 'lanczos3'})
             .png({compressionLevel: 9, adaptiveFiltering: true})
             .toBuffer();
         files[mode] = png.toString('base64');
