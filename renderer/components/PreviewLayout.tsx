@@ -32,25 +32,15 @@ const b = block('themes-preview-layout');
 interface PreviewLayoutProps {
     id: string;
     breadCrumbsItems: string[];
-    styles?: string;
     children: (props: {justify: 'flex-start'}) => React.ReactNode;
-    hideAsideMenu?: boolean;
-    scrollableContent?: boolean;
-    noPadding?: boolean;
     initialTheme?: Theme;
-    hideThemeToggle?: boolean;
 }
 
 export const PreviewLayout = ({
     breadCrumbsItems,
     children,
-    styles,
     id,
-    hideAsideMenu,
-    scrollableContent,
-    noPadding,
     initialTheme = 'dark',
-    hideThemeToggle = false,
 }: PreviewLayoutProps) => {
     const [theme, setTheme] = useState<Theme>(initialTheme);
     const justify = 'flex-start' as const;
@@ -76,26 +66,24 @@ export const PreviewLayout = ({
                             </Breadcrumbs>
                         </ActionBar.Group>
                         <ActionBar.Group pull="right">
-                            {!hideThemeToggle && (
-                                <ActionBar.Item className={b('header-actions')}>
-                                    <SegmentedRadioGroup
-                                        name="theme"
-                                        defaultValue="light"
-                                        value={theme}
-                                        onChange={onThemeChange}
-                                        options={[
-                                            {
-                                                value: 'light',
-                                                content: <Icon data={Sun} />,
-                                            },
-                                            {
-                                                value: 'dark',
-                                                content: <Icon data={Moon} />,
-                                            },
-                                        ]}
-                                    />
-                                </ActionBar.Item>
-                            )}
+                            <ActionBar.Item className={b('header-actions')}>
+                                <SegmentedRadioGroup
+                                    name="theme"
+                                    defaultValue="light"
+                                    value={theme}
+                                    onChange={onThemeChange}
+                                    options={[
+                                        {
+                                            value: 'light',
+                                            content: <Icon data={Sun} />,
+                                        },
+                                        {
+                                            value: 'dark',
+                                            content: <Icon data={Moon} />,
+                                        },
+                                    ]}
+                                />
+                            </ActionBar.Item>
                         </ActionBar.Group>
                     </ActionBar.Section>
                 </ActionBar>
@@ -108,16 +96,7 @@ export const PreviewLayout = ({
 
     return (
         <ThemeProvider theme={theme} scoped rootClassName={`${b()} ${b({theme})}`}>
-            {styles ? <style>{styles}</style> : null}
-
-            <div
-                className={b({
-                    'hide-aside': hideAsideMenu,
-                    'scrollable-content': scrollableContent,
-                    'no-padding': noPadding,
-                })}
-                ref={containerRef}
-            >
+            <div className={b()} ref={containerRef}>
                 <PortalProvider container={containerRef}>
                     <AsideHeader
                         menuItems={[

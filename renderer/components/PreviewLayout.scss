@@ -27,16 +27,6 @@ $desktopSampleWidth: 1080px;
         border: 0;
     }
 
-    &_hide-aside {
-        .gn-aside-header__aside {
-            display: none;
-        }
-
-        .gn-aside-header__content {
-            width: 100%;
-        }
-    }
-
     & &__aside-header {
         --gn-aside-header-item-icon-color: var(--g-color-base-brand);
 
@@ -89,20 +79,6 @@ $desktopSampleWidth: 1080px;
             > * {
                 min-width: $desktopSampleWidth;
             }
-        }
-    }
-
-    $root: &;
-
-    &_scrollable-content {
-        #{$root}__content {
-            overflow-y: auto;
-        }
-    }
-
-    &_no-padding {
-        #{$root}__content {
-            padding: 0;
         }
     }
 
