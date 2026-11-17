@@ -38,7 +38,9 @@ export default function Capture() {
         if (!data) {
             return;
         }
-        document.fonts.ready.then(() =>
+        // Screenshots must not race the avatar download or decode.
+        const images = Array.from(document.querySelectorAll<HTMLImageElement>('#capture-root img'));
+        Promise.all([document.fonts.ready, ...images.map((image) => image.decode())]).then(() =>
             requestAnimationFrame(() =>
                 requestAnimationFrame(() => {
                     document.documentElement.dataset.themePreviewReady = '1';
