@@ -114,6 +114,8 @@ const require = createRequire(import.meta.url);
 const {validateThemePayload} = require('./dist/validation.js');
 const id = 'coffee';
 const metadata = JSON.parse(readFileSync(`themes/${id}.meta.json`, 'utf8'));
+// The editor hint is not part of the metadata.
+delete metadata.$schema;
 const payload = validateThemePayload(JSON.parse(readFileSync(`themes/${id}.theme.json`, 'utf8')));
 const canonical = JSON.stringify({metadata, payload});
 const revision = execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim();
