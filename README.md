@@ -10,6 +10,19 @@ npm install @gravity-ui/themes
 
 ## Usage
 
+### Apply a theme
+
+Import the CSS of a theme after the UIKit styles. The id of a theme is its file name in `themes/`, for example `coffee`.
+
+```ts
+import '@gravity-ui/uikit/styles/styles.css';
+import '@gravity-ui/themes/css/coffee.css';
+```
+
+The file sets `--g-*` variables on `.g-root`, `.g-root_theme_light` and `.g-root_theme_dark`, so it works with the `ThemeProvider` theme switch. Gallery themes use only the built-in fonts listed in `@gravity-ui/themes/fonts`; load them in the app as you do for the default theme.
+
+### Catalog
+
 The catalog is a directory of small static files, `@gravity-ui/themes/catalog/*`, meant to be served as is and fetched on demand. No file except `names.json` grows with the number of themes, so a page that shows one theme or one page of the gallery downloads only that.
 
 | File                       | Contents                                                                           |
@@ -21,6 +34,7 @@ The catalog is a directory of small static files, `@gravity-ui/themes/catalog/*`
 | `metadata/<id>.json`       | Metadata of one theme                                                              |
 | `payloads/<id>.json`       | Validated Themer JSON of one theme                                                 |
 | `previews/<id>-<mode>.png` | Light or dark preview PNG, 740 by 500 pixels                                       |
+| `css/<id>.css`             | The theme as UIKit CSS variables, the same as CSS export in the Themer             |
 
 Themes keep the order of their ids in every listing. The manifest `hash` covers every other file, so a copy of the directory can be served under an immutable, hash-named URL. The root entry point exports the paths above and their types; resolve the directory with `require.resolve('@gravity-ui/themes/catalog/manifest.json')` to copy it into your static assets.
 
@@ -58,6 +72,7 @@ A payload entry is either `{value: string, ref?: string}` or a per-mode object w
 | `@gravity-ui/themes/fonts`              | `DEFAULT_FONT_FAMILIES`, `BUILT_IN_FONTS` and `isBuiltInFontFamily`                            |
 | `@gravity-ui/themes/files`              | `formatThemeMetadataFile` and `formatThemePayloadFile`, the canonical text of `themes/*` files |
 | `@gravity-ui/themes/catalog/*`          | Catalog files described above                                                                  |
+| `@gravity-ui/themes/css/*`              | `<id>.css`, the theme as UIKit CSS variables                                                   |
 
 Use these entry points instead of importing implementation files from `dist/`.
 

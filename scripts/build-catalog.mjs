@@ -3,6 +3,8 @@ import {copyFile, mkdir, readFile, readdir, rm, writeFile} from 'node:fs/promise
 import {createRequire} from 'node:module';
 import path from 'node:path';
 
+import {generateCSS, parseJSON} from '@gravity-ui/uikit-themer';
+
 const require = createRequire(import.meta.url);
 /** @type {typeof import('../lib/files')} */
 const {formatThemeMetadataFile, formatThemePayloadFile} = require('../dist/files.js');
@@ -13,10 +15,13 @@ const {
     CATALOG_NAMES_PATH,
     CATALOG_PAGE_SIZE,
     getCatalogPagePath,
+    getThemeCssPath,
     getThemeMetadataPath,
     getThemePayloadPath,
     getThemePreviewPath,
 } = require('../dist/index.js');
+/** @type {typeof import('../lib/normalize-imported')} */
+const {normalizeImportedTheme} = require('../dist/normalize-imported.js');
 /** @type {typeof import('../lib/schema')} */
 const {THEME_TAGS, validateThemeMetadata} = require('../dist/schema.js');
 /** @type {typeof import('../lib/validation')} */
@@ -43,6 +48,9 @@ const previewFiles = new Map();
 const addJson = (file, value) => {
     jsonFiles.set(file, JSON.stringify(value));
 };
+/** Catalog path to ready-to-import theme CSS, the same output as CSS export in the Themer. */
+/** @type {Map<string, string>} */
+const cssFiles = new Map();
 
 /**
  * Rejects a source file whose text is not the canonical output for its content.
@@ -102,6 +110,16 @@ for (const expectedId of themeIds) {
         const payload = validateThemePayload(sourcePayload);
         addJson(getThemeMetadataPath(metadata.id), metadata);
         addJson(getThemePayloadPath(metadata.id), payload);
+        // The Themer imports JSON this way and exports CSS with these options, so the file equals its CSS export.
+        cssFiles.set(
+            getThemeCssPath(metadata.id),
+            generateCSS({
+                theme: normalizeImportedTheme(parseJSON(payload), payload),
+                ignoreDefaultValues: true,
+                forPreview: false,
+                libraries: ['illustrations'],
+            }),
+        );
         for (const mode of MODES) {
             previewFiles.set(
                 getThemePreviewPath(metadata.id, mode),
@@ -151,9 +169,11 @@ const tags = Object.fromEntries(
 
 // One hash over every file lets consumers serve a catalog copy under an immutable URL.
 const hash = createHash('sha256');
-for (const file of [...jsonFiles.keys(), ...previewFiles.keys()].sort()) {
+for (const file of [...jsonFiles.keys(), ...cssFiles.keys(), ...previewFiles.keys()].sort()) {
     const source = previewFiles.get(file);
-    const content = source ? await readFile(source) : (jsonFiles.get(file) ?? '');
+    const content = source
+        ? await readFile(source)
+        : (jsonFiles.get(file) ?? cssFiles.get(file) ?? '');
     hash.update(`${file}\0${content.length}\0`).update(content);
 }
 addJson(CATALOG_MANIFEST_PATH, {
@@ -175,7 +195,7 @@ const prepare = async (file) => {
     await mkdir(path.dirname(target), {recursive: true});
     return target;
 };
-for (const [file, content] of jsonFiles) {
+for (const [file, content] of [...jsonFiles, ...cssFiles]) {
     await writeFile(await prepare(file), content);
 }
 for (const [file, source] of previewFiles) {

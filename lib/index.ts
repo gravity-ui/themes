@@ -39,3 +39,5 @@ export const getThemePayloadPath = (id: string) => `payloads/${id}.json`;
 
 export const getThemePreviewPath = (id: string, mode: ThemePreviewMode) =>
     `previews/${id}-${mode}.png`;
+
+export const getThemeCssPath = (id: string) => `css/${id}.css`;

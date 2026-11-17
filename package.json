@@ -96,6 +96,7 @@
       "types": "./dist/files.d.ts",
       "default": "./dist/files.js"
     },
-    "./catalog/*": "./dist/catalog/*"
+    "./catalog/*": "./dist/catalog/*",
+    "./css/*": "./dist/catalog/css/*"
   }
 }
