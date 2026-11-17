@@ -7,6 +7,7 @@ import {
 import chroma from 'chroma-js';
 
 import {
+    type SubmissionDraft,
     type SubmissionFieldErrors,
     cleanSubmissionText as cleanText,
     validateSubmissionDraft,
@@ -32,13 +33,7 @@ export class SubmissionValidationError extends Error {
 }
 
 // Metadata fields accepted when preparing a theme submission.
-export interface ThemeMetaDraft {
-    name: string;
-    descriptionEn: string;
-    descriptionRu: string;
-    tags: string[];
-    brandColor: string;
-}
+export type ThemeMetaDraft = SubmissionDraft & {brandColor: string};
 
 export interface SubmissionAuthor {
     login: string;
