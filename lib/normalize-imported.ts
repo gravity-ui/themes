@@ -16,7 +16,9 @@ import type {ThemePayload} from './schema';
 
 // Keep JSON references in the grammar understood by the pinned Themer version.
 const normalizeRef = (ref: unknown): string | undefined => {
-    if (typeof ref !== 'string' || !ref) return undefined;
+    if (typeof ref !== 'string' || !ref) {
+        return undefined;
+    }
     if (isPrivateColorCssVariable(ref)) {
         try {
             const {mainColorToken, privateColorToken} = parsePrivateColorCssVariable(ref);
@@ -51,7 +53,9 @@ export function normalizeImportedTheme(theme: GravityTheme, payload?: ThemePaylo
                     continue;
                 }
                 const normalized = normalizeColorOptions(palette[key]);
-                if (normalized) palette[key] = normalized;
+                if (normalized) {
+                    palette[key] = normalized;
+                }
             }
         }
     }
@@ -68,8 +72,9 @@ export function normalizeImportedTheme(theme: GravityTheme, payload?: ThemePaylo
         const ref = entry && 'value' in entry ? entry.ref : undefined;
         if (typeof ref === 'string' && isFontCssVariable(ref)) {
             const family = getKeyFromCssFontVariable(ref);
-            if (Object.hasOwn(theme.typography.fontFamilies, family))
+            if (Object.hasOwn(theme.typography.fontFamilies, family)) {
                 settings['font-family'] = family;
+            }
         }
     }
     return theme;

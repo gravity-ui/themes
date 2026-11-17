@@ -23,8 +23,9 @@ if (
 ) {
     throw new Error('Invalid renderer correlation');
 }
-if (!/^[1-9]\d*$/.test(USER_ID ?? '') || !Number.isSafeInteger(Number(USER_ID)))
+if (!/^[1-9]\d*$/.test(USER_ID ?? '') || !Number.isSafeInteger(Number(USER_ID))) {
     throw new Error('Invalid user id');
+}
 const input = readSubmissionInput(process.env.SUBMISSION);
 validateThemeMetadata(input.metadata);
 const payload = validateThemePayload(input.payload);
@@ -59,7 +60,9 @@ try {
         await page.waitForFunction(() => typeof window.renderTheme === 'function');
         await page.evaluate(
             (data) => {
-                if (!window.renderTheme) throw new Error('Renderer is not ready');
+                if (!window.renderTheme) {
+                    throw new Error('Renderer is not ready');
+                }
                 window.renderTheme(data);
             },
             {payload, mode},

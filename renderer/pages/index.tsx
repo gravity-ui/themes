@@ -43,7 +43,9 @@ export default function Capture() {
         };
     }, []);
     React.useEffect(() => {
-        if (!data) return;
+        if (!data) {
+            return;
+        }
         document.fonts.ready.then(() =>
             requestAnimationFrame(() =>
                 requestAnimationFrame(() => {
@@ -52,7 +54,9 @@ export default function Capture() {
             ),
         );
     }, [data]);
-    if (!data) return null;
+    if (!data) {
+        return null;
+    }
     const css = generateCSS({
         theme: normalizeImportedTheme(parseJSON(toParserPayload(data.payload)), data.payload),
         ignoreDefaultValues: false,
