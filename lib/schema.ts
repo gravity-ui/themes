@@ -1,3 +1,5 @@
+import {MAX_DESCRIPTION_LENGTH, MAX_TAGS, MAX_THEME_NAME_LENGTH} from './limits';
+
 export const THEME_TAGS = [
     'high-contrast',
     'accessible',
@@ -98,16 +100,36 @@ export class ThemeMetadataValidationError extends Error {
     }
 }
 
+function assertKnownKeys(id: string, label: string, value: object, allowed: readonly string[]) {
+    const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
+    if (unknown.length) {
+        throw new ThemeMetadataValidationError(
+            `[${id}] ${label} has unknown keys: ${unknown.join(', ')}`,
+        );
+    }
+}
+
+function isHttpsUrl(value: string) {
+    try {
+        return new URL(value).protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
 function validateAuthor(id: string, value: unknown) {
     if (!value || typeof value !== 'object') {
         throw new ThemeMetadataValidationError(`[${id}] author must be an object`);
     }
+    assertKnownKeys(id, 'author', value, ['name', 'url']);
     const author = value as Record<string, unknown>;
     if (typeof author.name !== 'string' || !author.name.trim()) {
         throw new ThemeMetadataValidationError(`[${id}] author.name must be a non-empty string`);
     }
-    if (author.url !== undefined && typeof author.url !== 'string') {
-        throw new ThemeMetadataValidationError(`[${id}] author.url must be a string when present`);
+    if (author.url !== undefined && (typeof author.url !== 'string' || !isHttpsUrl(author.url))) {
+        throw new ThemeMetadataValidationError(
+            `[${id}] author.url must be an https URL when present`,
+        );
     }
 }
 
@@ -115,18 +137,32 @@ function validateDescription(id: string, value: unknown) {
     if (!value || typeof value !== 'object') {
         throw new ThemeMetadataValidationError(`[${id}] description must be an object`);
     }
+    assertKnownKeys(id, 'description', value, ['en', 'ru']);
     const description = value as Record<string, unknown>;
-    if (typeof description.en !== 'string' || !description.en.trim()) {
-        throw new ThemeMetadataValidationError(`[${id}] description.en must be a non-empty string`);
-    }
-    if (typeof description.ru !== 'string' || !description.ru.trim()) {
-        throw new ThemeMetadataValidationError(`[${id}] description.ru must be a non-empty string`);
+    for (const language of ['en', 'ru'] as const) {
+        const text = description[language];
+        if (typeof text !== 'string' || !text.trim()) {
+            throw new ThemeMetadataValidationError(
+                `[${id}] description.${language} must be a non-empty string`,
+            );
+        }
+        if (text.length > MAX_DESCRIPTION_LENGTH) {
+            throw new ThemeMetadataValidationError(
+                `[${id}] description.${language} must be at most ${MAX_DESCRIPTION_LENGTH} characters`,
+            );
+        }
     }
 }
 
 function validateTags(id: string, value: unknown) {
     if (!Array.isArray(value)) {
         throw new ThemeMetadataValidationError(`[${id}] tags must be an array`);
+    }
+    if (value.length > MAX_TAGS) {
+        throw new ThemeMetadataValidationError(`[${id}] tags must have at most ${MAX_TAGS} items`);
+    }
+    if (new Set(value).size !== value.length) {
+        throw new ThemeMetadataValidationError(`[${id}] tags must be unique`);
     }
     for (const tag of value) {
         if (!THEME_TAGS.includes(tag as ThemeTag)) {
@@ -148,8 +184,22 @@ export function validateThemeMetadata(value: unknown): asserts value is ThemeMet
     }
     const id = v.id;
 
+    assertKnownKeys(id, 'metadata', v, [
+        'id',
+        'name',
+        'author',
+        'description',
+        'tags',
+        'brandColor',
+    ]);
+
     if (typeof v.name !== 'string' || !v.name.trim()) {
         throw new ThemeMetadataValidationError(`[${id}] name must be a non-empty string`);
+    }
+    if (v.name.length > MAX_THEME_NAME_LENGTH) {
+        throw new ThemeMetadataValidationError(
+            `[${id}] name must be at most ${MAX_THEME_NAME_LENGTH} characters`,
+        );
     }
     // The id is a function of the name, so a free id means a free name.
     const expectedId = toThemeId(v.name);

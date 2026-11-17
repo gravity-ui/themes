@@ -17,6 +17,7 @@
     "name": {
       "type": "string",
       "minLength": 1,
+      "maxLength": 40,
       "description": "Display name. Not localized (brand names stay original)."
     },
     "author": {
@@ -25,7 +26,7 @@
       "additionalProperties": false,
       "properties": {
         "name": {"type": "string", "minLength": 1},
-        "url": {"type": "string", "format": "uri"}
+        "url": {"type": "string", "format": "uri", "pattern": "^https://"}
       }
     },
     "description": {
@@ -33,8 +34,8 @@
       "required": ["en", "ru"],
       "additionalProperties": false,
       "properties": {
-        "en": {"type": "string", "minLength": 1},
-        "ru": {"type": "string", "minLength": 1}
+        "en": {"type": "string", "minLength": 1, "maxLength": 200},
+        "ru": {"type": "string", "minLength": 1, "maxLength": 200}
       }
     },
     "tags": {
@@ -51,6 +52,7 @@
           "minimal"
         ]
       },
+      "maxItems": 3,
       "uniqueItems": true
     },
     "brandColor": {
