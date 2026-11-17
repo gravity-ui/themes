@@ -17,6 +17,7 @@ import {
     type ThemeMetadata,
     type ThemeModeValue,
     type ThemePayload,
+    type ThemePreviewMode,
     type ThemeTag,
     type ThemeValue,
     toThemeId,
@@ -242,7 +243,7 @@ export function validateThemePayload(value: unknown): ThemePayload {
 }
 
 function normalizeColorReferences(payload: ThemePayload): ThemePayload {
-    const resolve = (key: string, mode: 'light' | 'dark', visiting: Set<string>): string => {
+    const resolve = (key: string, mode: ThemePreviewMode, visiting: Set<string>): string => {
         if (visiting.has(key)) {
             throw new SubmissionValidationError(`circular color reference ${key}`);
         }
@@ -264,7 +265,7 @@ function normalizeColorReferences(payload: ThemePayload): ThemePayload {
     const normalized = {...payload};
     for (const key of Object.keys(payload).filter((name) => COLOR_KEY_RE.test(name))) {
         const entry = payload[key];
-        const normalize = (leaf: PayloadValue, mode: 'light' | 'dark'): PayloadValue =>
+        const normalize = (leaf: PayloadValue, mode: ThemePreviewMode): PayloadValue =>
             COLOR_VAR_RE.test(leaf.value)
                 ? {value: resolve(key, mode, new Set()), ref: leaf.value.slice(4, -1)}
                 : leaf;
@@ -276,7 +277,7 @@ function normalizeColorReferences(payload: ThemePayload): ThemePayload {
                 };
             }
         } else {
-            const themed: Partial<Record<'light' | 'dark', PayloadValue>> = {};
+            const themed: Partial<Record<ThemePreviewMode, PayloadValue>> = {};
             for (const mode of ['light', 'dark'] as const) {
                 const leaf = entry[mode];
                 if (leaf) {
