@@ -20,6 +20,12 @@ on:
         type: string
 permissions:
   contents: read
+# The submission server counts runs before dispatching, so a burst of parallel requests passes
+# that check together. One group per user keeps at most one render running and one pending;
+# GitHub cancels the other pending runs, and they still count against the user's daily limit.
+concurrency:
+  group: render-submission-${{ inputs.user_id }}
+  cancel-in-progress: false
 jobs:
   render:
     runs-on: ubuntu-24.04
