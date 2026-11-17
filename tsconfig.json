@@ -1,0 +1,14 @@
+{
+  "extends": "@gravity-ui/tsconfig/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "declaration": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "include": ["lib/**/*.ts"]
+}
