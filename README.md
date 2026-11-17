@@ -1,6 +1,6 @@
 # Gravity UI Themes
 
-A public catalog of [Gravity UI](https://gravity-ui.com) themes with metadata, validated Themer JSON and embedded light/dark previews. The package also provides shared submission validation, import normalization and a built-in font registry.
+A public catalog of [Gravity UI](https://gravity-ui.com) themes with metadata, validated Themer JSON and light/dark previews. The package also provides shared submission validation, import normalization and a built-in font registry.
 
 ## Installation
 
@@ -10,23 +10,39 @@ npm install @gravity-ui/themes
 
 ## Usage
 
-The default entry point is a JSON array. Each entry contains `metadata`, `payload` and `previews`. Both previews are PNG data URLs, ready for an image's `src`; no separate asset host is needed.
+The catalog is a directory of small static files, `@gravity-ui/themes/catalog/*`, meant to be served as is and fetched on demand. No file except `names.json` grows with the number of themes, so a page that shows one theme or one page of the gallery downloads only that.
+
+| File                       | Contents                                                                           |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `manifest.json`            | Format version, content hash, page size, theme and page counts in total and by tag |
+| `names.json`               | `{id, name}` of every theme, for checking that a new name is free                  |
+| `pages/<n>.json`           | Metadata of up to 50 themes, pages numbered from 1                                 |
+| `tags/<tag>/<n>.json`      | The same pages for the themes with one tag                                         |
+| `metadata/<id>.json`       | Metadata of one theme                                                              |
+| `payloads/<id>.json`       | Validated Themer JSON of one theme                                                 |
+| `previews/<id>-<mode>.png` | Light or dark preview PNG, 740 by 500 pixels                                       |
+
+Themes keep the order of their ids in every listing. The manifest `hash` covers every other file, so a copy of the directory can be served under an immutable, hash-named URL. The root entry point exports the paths above and their types; resolve the directory with `require.resolve('@gravity-ui/themes/catalog/manifest.json')` to copy it into your static assets.
 
 ```ts
-import catalog from '@gravity-ui/themes';
+import {getCatalogPagePath, getThemePayloadPath, getThemePreviewPath} from '@gravity-ui/themes';
+import type {CatalogPage} from '@gravity-ui/themes';
 import type {ThemePayload} from '@gravity-ui/themes/schema';
 
-const entry = catalog.find(({metadata}) => metadata.id === 'coffee');
-if (entry) {
-  const payload: ThemePayload = entry.payload;
-  const color = payload['--g-color-base-brand'];
-  const lightBrand = 'value' in color ? color.value : color.light?.value;
-  const preview = entry.previews.light;
-  // Use preview as an image src and lightBrand as the brand color.
-}
+// Wherever the copied `catalog/` directory is served from.
+const base = '/static/themes';
+
+const page: CatalogPage = await (await fetch(`${base}/${getCatalogPagePath(1)}`)).json();
+const payload: ThemePayload = await (
+  await fetch(`${base}/${getThemePayloadPath('coffee')}`)
+).json();
+const color = payload['--g-color-base-brand'];
+const lightBrand = 'value' in color ? color.value : color.light?.value;
+const preview = `${base}/${getThemePreviewPath('coffee', 'light')}`;
+// Use preview as an image src and lightBrand as the brand color.
 ```
 
-The root export is JSON, not executable ESM. Bundlers can import it as shown above; CommonJS consumers can use `require('@gravity-ui/themes')`. Native Node.js ESM needs a JSON import attribute: `import catalog from '@gravity-ui/themes' with {type: 'json'}`. TypeScript consumers should enable `esModuleInterop` for the default import and use `moduleResolution: "node16"`, `"nodenext"` or `"bundler"` to resolve the exported subpaths.
+TypeScript consumers should use `moduleResolution: "node16"`, `"nodenext"` or `"bundler"` to resolve the exported subpaths.
 
 A payload entry is either `{value: string, ref?: string}` or a per-mode object with `light` and/or `dark` leaves. Narrow with `'value' in entry` before reading a common value. The pinned Themer parser expects both modes for per-mode entries; when accepting arbitrary submitted payloads, pass common entries and complete mode pairs to `parseJSON` (as the renderer does). The bundled catalog has complete pairs.
 
@@ -34,12 +50,13 @@ A payload entry is either `{value: string, ref?: string}` or a per-mode object w
 
 | Import                                  | Contents                                                                       |
 | --------------------------------------- | ------------------------------------------------------------------------------ |
-| `@gravity-ui/themes`                    | Catalog JSON and its declarations                                              |
+| `@gravity-ui/themes`                    | Catalog file paths, page size and file types                                   |
 | `@gravity-ui/themes/schema`             | Metadata/payload types, tags, id generation and metadata validation            |
 | `@gravity-ui/themes/validation`         | `buildThemeMetadata`, `validateThemePayload` and validation errors             |
 | `@gravity-ui/themes/normalize-imported` | `normalizeImportedTheme`, which updates a parsed theme in place and returns it |
 | `@gravity-ui/themes/draft`              | Submission draft types, text cleanup and field validation                      |
 | `@gravity-ui/themes/fonts`              | `DEFAULT_FONT_FAMILIES`, `BUILT_IN_FONTS` and `isBuiltInFontFamily`            |
+| `@gravity-ui/themes/catalog/*`          | Catalog files described above                                                  |
 
 Use these entry points instead of importing implementation files from `dist/`.
 
@@ -65,7 +82,7 @@ npm run render:build
 4. Add `previews/<id>-light.png` and `previews/<id>-dark.png`, both 740 by 500 pixels. Generate them with the pinned renderer below; do not substitute images from an unrelated renderer revision.
 5. Run `npm test`, `npm run render:build` and `npm pack --dry-run`. Submit a pull request with a Conventional Commit title, such as `feat(themes): add a new theme`.
 
-The catalog build validates metadata and payloads and embeds both previews into `dist/catalog.json`. Raw PNGs remain source assets but are not duplicated in the npm package. Font licenses in `licenses/` are included in the package.
+The catalog build validates metadata and payloads and writes the files above to `dist/catalog/`, previews included as separate PNGs. Source PNGs in `previews/` are not duplicated in the npm package. Font licenses in `licenses/` are included in the package.
 
 ### Generate or update previews
 

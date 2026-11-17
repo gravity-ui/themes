@@ -2,8 +2,8 @@
   "name": "@gravity-ui/themes",
   "version": "0.0.0",
   "description": "Public Gravity UI themes, validation and pinned preview renderer",
-  "main": "dist/catalog.json",
-  "types": "dist/catalog.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist",
     "themes",
@@ -68,8 +68,8 @@
   "license": "MIT",
   "exports": {
     ".": {
-      "types": "./dist/catalog.d.ts",
-      "default": "./dist/catalog.json"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./schema": {
       "types": "./dist/schema.d.ts",
@@ -90,6 +90,7 @@
     "./fonts": {
       "types": "./dist/fonts.d.ts",
       "default": "./dist/fonts.js"
-    }
+    },
+    "./catalog/*": "./dist/catalog/*"
   }
 }
