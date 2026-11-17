@@ -151,6 +151,13 @@ export function validateThemeMetadata(value: unknown): asserts value is ThemeMet
     if (typeof v.name !== 'string' || !v.name.trim()) {
         throw new ThemeMetadataValidationError(`[${id}] name must be a non-empty string`);
     }
+    // The id is a function of the name, so a free id means a free name.
+    const expectedId = toThemeId(v.name);
+    if (id !== expectedId) {
+        throw new ThemeMetadataValidationError(
+            `[${id}] id must be derived from name "${v.name}", expected "${expectedId}"`,
+        );
+    }
 
     validateAuthor(id, v.author);
     validateDescription(id, v.description);

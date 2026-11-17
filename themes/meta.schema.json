@@ -12,7 +12,7 @@
     "id": {
       "type": "string",
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "description": "Kebab-case identifier. Must match the file name without the .meta.json suffix."
+      "description": "Kebab-case identifier derived from the name by toThemeId. Must match the file name without the .meta.json suffix."
     },
     "name": {
       "type": "string",

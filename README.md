@@ -77,8 +77,8 @@ npm run render:build
 ### Add a theme
 
 1. Export JSON from [Themer](https://gravity-ui.com/themer).
-2. Choose a unique kebab-case id. Add `themes/<id>.theme.json` and `themes/<id>.meta.json`. The metadata `id` must equal the file name without `.meta.json`.
-3. Fill metadata according to [`themes/meta.schema.json`](themes/meta.schema.json): name, author, English/Russian descriptions, tags and `#RRGGBB` brand color. Names must be unique after trimming and case normalization.
+2. Choose a unique theme name. Its id is derived from the name: lowercase, Cyrillic transliterated to Latin, every other run of non-alphanumeric characters replaced with `-` (`toThemeId` in `@gravity-ui/themes/schema`; `Retro Wave Radio` becomes `retro-wave-radio`). Add `themes/<id>.theme.json` and `themes/<id>.meta.json`. The metadata `id` must equal the file name without `.meta.json`.
+3. Fill metadata according to [`themes/meta.schema.json`](themes/meta.schema.json): name, author, English/Russian descriptions, tags and `#RRGGBB` brand color. Names must be unique after trimming and case normalization, and their ids must be unique too.
 4. Add `previews/<id>-light.png` and `previews/<id>-dark.png`, both 740 by 500 pixels. Generate them with the pinned renderer below; do not substitute images from an unrelated renderer revision.
 5. Run `npm test`, `npm run render:build` and `npm pack --dry-run`. Submit a pull request with a Conventional Commit title, such as `feat(themes): add a new theme`.
 
