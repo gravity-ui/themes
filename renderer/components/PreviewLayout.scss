@@ -19,10 +19,8 @@ $desktopSampleWidth: 1080px;
     border: 1px solid var(--g-color-line-generic);
     overflow: hidden;
 
-    // The component puts the block class on both the scoped ThemeProvider root
-    // and the container inside it, so the frame used to be drawn twice — 1px
-    // apart, which reads as a double line on the rounded corners. The outer
-    // element owns the frame; the inner one only clips.
+    // The block class is on both the scoped ThemeProvider root and the container
+    // inside it. The outer element draws the frame; the inner one only clips.
     & & {
         border: 0;
     }
